@@ -1,5 +1,5 @@
 /**
- * Subscription & Free Trial Business Rules for Samly
+ * Subscription & Free Trial Business Rules for Samley Retail
  *
  * Rules:
  * - One fixed price: GH₵300 per month

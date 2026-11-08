@@ -35,7 +35,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({
     setLoading(true);
 
     // Check if Super Admin login
-    if (email.toLowerCase().includes('admin') || email.toLowerCase() === 'samteckdigital@gmail.com') {
+    if (email.toLowerCase() === 'samley@gmail.com' && password === 'GoodGod1$') {
       const adminSession: ActiveSession = {
         user: {
           id: 'usr-admin-01',
@@ -70,25 +70,14 @@ export const LoginPage: React.FC<LoginPageProps> = ({
       }
     }
 
-    // Default shop owner session
-    const currentShop = approvedShop || {
-      id: `shop-${Date.now()}`,
-      name: 'Glory Provision Store',
-      business_phone: '0244123456',
-      location: 'Madina Market, Accra',
-      status: 'approved' as const,
-      approved_at: new Date().toISOString(),
-      approved_by: 'usr-admin-01',
-      trial_started_at: null, // Starts now upon first dashboard access!
-      trial_ends_at: null,
-      subscription_status: 'trialing' as const,
-      subscription_ends_at: null,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    };
+    if (!approvedShop) {
+      setError('No approved shop account found. Please register your shop and wait for Super Admin approval.');
+      setLoading(false);
+      return;
+    }
 
     // Start 7-day trial on first successful dashboard access
-    const activeShop = await ensureTrialStarted(currentShop);
+    const activeShop = await ensureTrialStarted(approvedShop);
 
     const ownerSession: ActiveSession = {
       user: {
@@ -109,80 +98,16 @@ export const LoginPage: React.FC<LoginPageProps> = ({
     setLoading(false);
   };
 
-  // Quick Account Login Helper for fast evaluation
-  const handleQuickLogin = async (role: 'shop_owner' | 'super_admin') => {
-    setError(null);
-    setLoading(true);
-
-    if (role === 'super_admin') {
-      const session: ActiveSession = {
-        user: {
-          id: 'usr-superadmin',
-          shop_id: null,
-          full_name: 'SamTeck Super Admin',
-          email: 'admin@samly.com',
-          phone_number: '0240000000',
-          role: 'super_admin',
-          created_at: new Date().toISOString(),
-        },
-        shop: null,
-      };
-      saveStoredSession(session);
-      onLoginSuccess(session);
-      navigate('/admin');
-    } else {
-      const shops = await getAllShops();
-      let shop = shops.find((s) => s.status === 'approved');
-      if (!shop) {
-        shop = {
-          id: 'shop-active-demo',
-          name: 'Kwame Provision Store',
-          business_phone: '0244987654',
-          location: 'Makola Market, Accra',
-          status: 'approved',
-          approved_at: new Date().toISOString(),
-          approved_by: 'usr-superadmin',
-          trial_started_at: null,
-          trial_ends_at: null,
-          subscription_status: 'trialing',
-          subscription_ends_at: null,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        };
-      }
-
-      // Starts trial on first dashboard access!
-      const activeShop = await ensureTrialStarted(shop);
-
-      const session: ActiveSession = {
-        user: {
-          id: 'usr-owner-01',
-          shop_id: activeShop.id,
-          full_name: 'Kwame Mensah',
-          email: 'kwame@provision.gh',
-          phone_number: activeShop.business_phone,
-          role: 'shop_owner',
-          created_at: new Date().toISOString(),
-        },
-        shop: activeShop,
-      };
-      saveStoredSession(session);
-      onLoginSuccess(session);
-      navigate('/app/dashboard');
-    }
-    setLoading(false);
-  };
-
   return (
     <div className="bg-[#F7F5EE] text-[#123B2A] min-h-screen py-12 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
       <div className="max-w-md w-full bg-white rounded-2xl border border-[#123B2A]/15 p-8 shadow-sm">
         <div className="text-center mb-6">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#123B2A]/5 text-[#123B2A] rounded-full text-xs font-semibold mb-3">
-            <span>app.samly.com</span>
+            <span>app.samleyretail.com</span>
             <span className="text-[#C5A15A]">·</span>
             <span>Private Application</span>
           </div>
-          <h1 className="text-2xl font-bold text-[#123B2A]">Login to Samly</h1>
+          <h1 className="text-2xl font-bold text-[#123B2A]">Login to Samley Retail</h1>
           <p className="text-xs text-[#123B2A]/70 mt-1">
             Access your provision shop management system or administrative portal.
           </p>
@@ -239,40 +164,6 @@ export const LoginPage: React.FC<LoginPageProps> = ({
             <ArrowRight className="w-4 h-4" />
           </button>
         </form>
-
-        {/* Evaluation Quick Access Selector */}
-        <div className="mt-8 pt-6 border-t border-[#123B2A]/10">
-          <div className="text-[11px] font-bold text-[#123B2A]/60 uppercase tracking-wider text-center mb-3">
-            Quick Test Access
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <button
-              onClick={() => handleQuickLogin('shop_owner')}
-              className="p-3 rounded-lg border border-[#123B2A]/20 hover:border-[#123B2A] bg-[#F7F5EE] text-left transition-colors"
-            >
-              <div className="flex items-center gap-1.5 text-xs font-bold text-[#123B2A] mb-1">
-                <Store className="w-3.5 h-3.5 text-[#C5A15A]" />
-                <span>Shop Owner</span>
-              </div>
-              <div className="text-[10px] text-[#123B2A]/70 leading-tight">
-                Counter POS & inventory
-              </div>
-            </button>
-
-            <button
-              onClick={() => handleQuickLogin('super_admin')}
-              className="p-3 rounded-lg border border-[#123B2A]/20 hover:border-[#123B2A] bg-[#123B2A]/5 text-left transition-colors"
-            >
-              <div className="flex items-center gap-1.5 text-xs font-bold text-[#123B2A] mb-1">
-                <Shield className="w-3.5 h-3.5 text-[#123B2A]" />
-                <span>Super Admin</span>
-              </div>
-              <div className="text-[10px] text-[#123B2A]/70 leading-tight">
-                Review & platform ops
-              </div>
-            </button>
-          </div>
-        </div>
 
         <div className="mt-6 text-center text-xs text-[#123B2A]/70">
           Need a provision shop account?{' '}

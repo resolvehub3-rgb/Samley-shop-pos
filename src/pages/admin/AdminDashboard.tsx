@@ -36,9 +36,10 @@ import { getSupabaseStatus } from '../../lib/supabase';
 interface AdminDashboardProps {
   session: ActiveSession;
   navigate: (route: string) => void;
+  currentRoute?: string;
 }
 
-export const AdminDashboard: React.FC<AdminDashboardProps> = ({ session, navigate }) => {
+export const AdminDashboard: React.FC<AdminDashboardProps> = ({ session, navigate, currentRoute }) => {
   const [activeTab, setActiveTab] = useState<
     'overview' | 'applications' | 'shops' | 'sms' | 'audit' | 'config'
   >('overview');
@@ -70,6 +71,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ session, navigat
     loadAdminData();
   }, []);
 
+  useEffect(() => {
+    const path = currentRoute || window.location.pathname;
+    if (path.startsWith('/admin/applications')) setActiveTab('applications');
+    else if (path.startsWith('/admin/shops')) setActiveTab('shops');
+    else if (path.startsWith('/admin/logs')) setActiveTab('sms');
+    else if (path.startsWith('/admin/config')) setActiveTab('config');
+    else setActiveTab('overview');
+  }, [currentRoute]);
+
   const loadAdminData = async () => {
     setLoading(true);
     const [ov, apps, shps, sms, audit] = await Promise.all([
@@ -99,7 +109,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ session, navigat
 
     if (result.success) {
       // Dispatch approval SMS per specification
-      const loginUrl = 'https://app.samly.com/login';
+      const loginUrl = 'https://app.samleyretail.com/login';
       await sendSmsNotification({
         recipientPhone: app.phone_number,
         messageType: 'approval',
@@ -143,95 +153,72 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ session, navigat
       shopId: shop.id,
       recipientPhone: shop.business_phone,
       messageType: 'account_status',
-      messageText: `[Samly Admin] Your shop account "${shop.name}" status has been set to: ${nextStatus.toUpperCase()}.`,
+      messageText: `[Samley Retail Admin] Your shop account "${shop.name}" status has been set to: ${nextStatus.toUpperCase()}.`,
     });
 
     loadAdminData();
   };
 
   return (
-    <div className="bg-[#123B2A] text-[#F7F5EE] min-h-screen py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto space-y-6">
-        {/* Top Header */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-4 border-b border-[#C5A15A]/20 gap-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-[#C5A15A] text-[#123B2A] flex items-center justify-center font-bold">
-              <Shield className="w-6 h-6" />
-            </div>
-            <div>
-              <div className="text-xs font-semibold text-[#C5A15A] uppercase tracking-wider">
-                Platform Super Admin Console
-              </div>
-              <h1 className="text-2xl font-extrabold text-white">
-                Samly Multi-Tenant Management
-              </h1>
-            </div>
+    <div className="bg-[#123B2A] text-[#F7F5EE] min-h-screen flex">
+      {/* Sidebar Menu */}
+      <aside className="w-64 shrink-0 border-r border-[#C5A15A]/20 py-6 px-4 flex flex-col gap-2 sticky top-16 h-[calc(100vh-4rem)] overflow-y-auto">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-10 h-10 rounded-lg bg-[#C5A15A] text-[#123B2A] flex items-center justify-center font-bold">
+            <Shield className="w-6 h-6" />
           </div>
-
-          <div className="text-xs text-[#F7F5EE]/70 font-mono">
-            Admin: {session.user.full_name} ({session.user.email})
+          <div>
+            <div className="text-xs font-semibold text-[#C5A15A] uppercase tracking-wider">Platform Super Admin</div>
+            <h1 className="text-lg font-extrabold text-white">Samley Retail</h1>
           </div>
         </div>
 
-        {/* Tab Navigation */}
-        <div className="flex items-center gap-2 border-b border-[#C5A15A]/20 text-xs font-semibold overflow-x-auto pb-1">
+        {[
+          { id: 'overview', label: 'Platform Overview', badge: 0, icon: null, route: '/admin' },
+          { id: 'applications', label: 'Shop Applications', badge: overview.pendingApplications, icon: null, route: '/admin/applications' },
+          { id: 'shops', label: `Shop Accounts (${shops.length})`, badge: 0, icon: null, route: '/admin/shops' },
+          { id: 'sms', label: 'SMS & Audit Logs', badge: 0, icon: null, route: '/admin/logs' },
+          { id: 'config', label: 'Database & Credentials', badge: 0, icon: Database, route: '/admin/config' },
+        ].map((item) => (
           <button
-            onClick={() => setActiveTab('overview')}
-            className={`py-2 px-3 rounded-t-lg transition-colors whitespace-nowrap ${
-              activeTab === 'overview'
-                ? 'bg-[#0c271c] text-[#C5A15A] border-t-2 border-[#C5A15A]'
-                : 'text-[#F7F5EE]/70 hover:text-white'
+            key={item.id}
+            onClick={() => {
+              setActiveTab(item.id as any);
+              navigate(item.route);
+            }}
+            className={`flex items-center justify-between w-full px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+              activeTab === item.id
+                ? 'bg-[#0c271c] text-[#C5A15A] border-l-2 border-[#C5A15A]'
+                : 'text-[#F7F5EE]/70 hover:text-white hover:bg-[#0c271c]/50'
             }`}
           >
-            Overview
-          </button>
-          <button
-            onClick={() => setActiveTab('applications')}
-            className={`py-2 px-3 rounded-t-lg transition-colors whitespace-nowrap flex items-center gap-1.5 ${
-              activeTab === 'applications'
-                ? 'bg-[#0c271c] text-[#C5A15A] border-t-2 border-[#C5A15A]'
-                : 'text-[#F7F5EE]/70 hover:text-white'
-            }`}
-          >
-            <span>Applications</span>
-            {overview.pendingApplications > 0 && (
-              <span className="w-4 h-4 rounded-full bg-[#C5A15A] text-[#123B2A] text-[10px] font-bold flex items-center justify-center">
-                {overview.pendingApplications}
+            <span className="flex items-center gap-2">
+              {item.icon ? <item.icon className="w-4 h-4" /> : null}
+              {item.label}
+            </span>
+            {item.badge > 0 && (
+              <span className="w-5 h-5 rounded-full bg-[#C5A15A] text-[#123B2A] text-[10px] font-bold flex items-center justify-center">
+                {item.badge}
               </span>
             )}
           </button>
-          <button
-            onClick={() => setActiveTab('shops')}
-            className={`py-2 px-3 rounded-t-lg transition-colors whitespace-nowrap ${
-              activeTab === 'shops'
-                ? 'bg-[#0c271c] text-[#C5A15A] border-t-2 border-[#C5A15A]'
-                : 'text-[#F7F5EE]/70 hover:text-white'
-            }`}
-          >
-            Shop Accounts ({shops.length})
-          </button>
-          <button
-            onClick={() => setActiveTab('sms')}
-            className={`py-2 px-3 rounded-t-lg transition-colors whitespace-nowrap ${
-              activeTab === 'sms'
-                ? 'bg-[#0c271c] text-[#C5A15A] border-t-2 border-[#C5A15A]'
-                : 'text-[#F7F5EE]/70 hover:text-white'
-            }`}
-          >
-            SasuSync SMS Logs
-          </button>
-          <button
-            onClick={() => setActiveTab('config')}
-            className={`py-2 px-3 rounded-t-lg transition-colors whitespace-nowrap flex items-center gap-1 ${
-              activeTab === 'config'
-                ? 'bg-[#0c271c] text-[#C5A15A] border-t-2 border-[#C5A15A]'
-                : 'text-[#F7F5EE]/70 hover:text-white'
-            }`}
-          >
-            <Database className="w-3.5 h-3.5" />
-            <span>Database & Credentials</span>
-          </button>
+        ))}
+
+        <div className="mt-auto pt-6 text-xs text-[#F7F5EE]/70 font-mono">
+          Admin: {session.user.full_name}
         </div>
+      </aside>
+
+      <main className="flex-1 py-8 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto space-y-6">
+          {/* Top Header */}
+          <div className="flex items-center justify-between pb-4 border-b border-[#C5A15A]/20 gap-4">
+            <div>
+              <div className="text-xs font-semibold text-[#C5A15A] uppercase tracking-wider">Platform Super Admin Console</div>
+              <h1 className="text-2xl font-extrabold text-white">Samley Retail Multi-Tenant Management</h1>
+            </div>
+            <div className="text-xs text-[#F7F5EE]/70 font-mono">{session.user.email}</div>
+          </div>
 
         {/* TAB 1: OVERVIEW */}
         {activeTab === 'overview' && (
@@ -506,7 +493,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ session, navigat
 
               <div className="p-4 bg-[#123B2A] rounded-lg border border-[#C5A15A]/20 space-y-2">
                 <div className="font-bold text-[#C5A15A]">SasuSync SMS Gateway</div>
-                <div>Sender ID: Samly</div>
+                <div>Sender ID: Samley Retail</div>
                 <div>Endpoint: https://api.sasusync.com/v1</div>
                 <div>Status: Configured & Logging</div>
               </div>
@@ -592,6 +579,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ session, navigat
           </div>
         )}
       </div>
+      </main>
     </div>
   );
 };

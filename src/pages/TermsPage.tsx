@@ -12,18 +12,18 @@ export const TermsPage: React.FC = () => {
 
         <h1 className="text-3xl font-bold text-[#123B2A] mb-2">Terms of Service</h1>
         <p className="text-xs text-[#123B2A]/60 mb-6">
-          Effective Date: March 2026 · Samly — Operated by SamTeck Digital.
+          Effective Date: March 2026 · Samley Retail — Operated by SamTeck Digital.
         </p>
 
         <div className="p-3.5 bg-[#F7F5EE] rounded-lg border border-[#C5A15A]/30 text-xs text-[#123B2A]/80 mb-8">
-          <strong>Notice:</strong> These terms govern the use of the Samly provision shop management SaaS platform. Please review carefully.
+          <strong>Notice:</strong> These terms govern the use of the Samley Retail provision shop management SaaS platform. Please review carefully.
         </div>
 
         <div className="space-y-6 text-xs sm:text-sm text-[#123B2A]/80 leading-relaxed">
           <section>
             <h2 className="text-base font-bold text-[#123B2A] mb-1.5">1. Account Registration & Approval</h2>
             <p>
-              To register a provision shop on Samly, you must provide accurate personal and business details and verify your phone number using the SasuSync SMS OTP. All applications are subject to manual review and approval by the Samly Super Admin to safeguard platform integrity.
+              To register a provision shop on Samley Retail, you must provide accurate personal and business details and verify your phone number using the SasuSync SMS OTP. All applications are subject to manual review and approval by the Samley Retail Super Admin to safeguard platform integrity.
             </p>
           </section>
 
@@ -44,7 +44,7 @@ export const TermsPage: React.FC = () => {
           <section>
             <h2 className="text-base font-bold text-[#123B2A] mb-1.5">4. Customer-Authorised Mobile Money Payments</h2>
             <p>
-              Subscription payments are processed through Moolre Mobile Money. Samly will never automatically deduct money from your account. The shop owner must actively initiate the renewal and authorise the prompt on their phone with their personal Mobile Money PIN.
+              Subscription payments are processed through Moolre Mobile Money. Samley Retail will never automatically deduct money from your account. The shop owner must actively initiate the renewal and authorise the prompt on their phone with their personal Mobile Money PIN.
             </p>
           </section>
 
@@ -64,14 +64,14 @@ export const TermsPage: React.FC = () => {
           <section>
             <h2 className="text-base font-bold text-[#123B2A] mb-1.5">6. Acceptable Platform Usage & Suspension</h2>
             <p>
-              Shop owners agree to use Samly solely for legitimate retail shop operations. SamTeck Digital reserves the right to suspend or deactivate accounts found engaging in fraudulent transactions, abusive OTP requests, or unauthorized system exploitation.
+              Shop owners agree to use Samley Retail solely for legitimate retail shop operations. SamTeck Digital reserves the right to suspend or deactivate accounts found engaging in fraudulent transactions, abusive OTP requests, or unauthorized system exploitation.
             </p>
           </section>
 
           <section>
             <h2 className="text-base font-bold text-[#123B2A] mb-1.5">7. Service Availability & Support</h2>
             <p>
-              While Samly strives for high uptime, we provide the platform on an as-available commercial basis. Technical support is provided by SamTeck Digital for active subscribers.
+              While Samley Retail strives for high uptime, we provide the platform on an as-available commercial basis. Technical support is provided by SamTeck Digital for active subscribers.
             </p>
           </section>
         </div>

@@ -1,5 +1,5 @@
 /**
- * Database types for Samly Provision Shop Management SaaS
+ * Database types for Samley Retail Provision Shop Management SaaS
  */
 
 export type ShopStatus = 'pending' | 'approved' | 'rejected' | 'suspended';

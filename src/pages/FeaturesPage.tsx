@@ -25,10 +25,10 @@ export const FeaturesPage: React.FC<FeaturesPageProps> = ({ navigate, setDomain 
             Capabilities Built for Ghana
           </span>
           <h1 className="text-3xl sm:text-4xl font-extrabold text-[#123B2A] mt-2 mb-4">
-            Samly Platform Features
+            Samley Retail Platform Features
           </h1>
           <p className="text-sm text-[#123B2A]/80 leading-relaxed">
-            Every feature in Samly solves a concrete problem in traditional provision shop daily operations.
+            Every feature in Samley Retail solves a concrete problem in traditional provision shop daily operations.
             No unnecessary complexity, no fake AI add-ons.
           </p>
         </div>

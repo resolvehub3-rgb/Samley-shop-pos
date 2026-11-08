@@ -32,11 +32,11 @@ export const HomePage: React.FC<HomePageProps> = ({ navigate, setDomain }) => {
 
   const faqs = [
     {
-      q: 'What is Samly?',
-      a: 'Samly is a commercial provision shop management SaaS platform operated by SamTeck Digital. It is specifically designed around the real operating workflow of traditional Ghanaian provision shops to track products, inventory, counter sales, and business performance.',
+      q: 'What is Samley Retail?',
+      a: 'Samley Retail is a commercial provision shop management SaaS platform operated by SamTeck Digital. It is specifically designed around the real operating workflow of traditional Ghanaian provision shops to track products, inventory, counter sales, and business performance.',
     },
     {
-      q: 'Who can use Samly?',
+      q: 'Who can use Samley Retail?',
       a: 'Any traditional provision shop owner in Ghana. It supports owners who manage the central counter and POS while shop attendants retrieve items from the shelves.',
     },
     {
@@ -45,14 +45,14 @@ export const HomePage: React.FC<HomePageProps> = ({ navigate, setDomain }) => {
     },
     {
       q: 'Why does my application require approval?',
-      a: 'To maintain high platform security and verify bona fide provision shop businesses, every registration is manually reviewed by the Samly Super Admin before account activation.',
+      a: 'To maintain high platform security and verify bona fide provision shop businesses, every registration is manually reviewed by the Samley Retail Super Admin before account activation.',
     },
     {
       q: 'How long is the free trial?',
       a: 'Every approved shop receives one 7-day free trial. The trial begins only when you successfully log in and access your dashboard for the first time after approval.',
     },
     {
-      q: 'How much does Samly cost?',
+      q: 'How much does Samley Retail cost?',
       a: 'There is a single transparent subscription fee of GH₵300 per shop per month. There are no complicated tiers, hidden setup charges, or surprise fees.',
     },
     {
@@ -82,11 +82,11 @@ export const HomePage: React.FC<HomePageProps> = ({ navigate, setDomain }) => {
               className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-[#123B2A] leading-tight mb-4"
               style={{ textWrap: 'balance' }}
             >
-              Run Your Provision Shop Smarter with Samly.
+              Run Your Provision Shop Smarter with Samley Retail.
             </h1>
 
             <p className="text-sm sm:text-base text-[#123B2A]/80 leading-relaxed mb-6">
-              Samly helps provision shop owners manage products, track stock, process sales and understand their business performance from one simple digital platform.
+              Samley Retail helps provision shop owners manage products, track stock, process sales and understand their business performance from one simple digital platform.
             </p>
 
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mb-4">
@@ -118,7 +118,7 @@ export const HomePage: React.FC<HomePageProps> = ({ navigate, setDomain }) => {
             </div>
           </div>
 
-          {/* Right Column: app.samly.com/app/sales — Counter Sales Terminal / Samly POS dashboard */}
+          {/* Right Column: app.samleyretail.com/app/sales — Counter Sales Terminal / Samley Retail POS dashboard */}
           <div className="lg:col-span-7">
             <div className="rounded-xl border border-[#123B2A]/15 bg-white shadow-xl overflow-hidden">
               {/* Mock Window Top Bar */}
@@ -128,10 +128,10 @@ export const HomePage: React.FC<HomePageProps> = ({ navigate, setDomain }) => {
                   <div className="w-2.5 h-2.5 rounded-full bg-yellow-400" />
                   <div className="w-2.5 h-2.5 rounded-full bg-green-400" />
                   <span className="ml-2 text-xs font-medium text-[#C5A15A] truncate">
-                    app.samly.com/app/sales — Counter Sales Terminal
+                    app.samley-retail.com/app/sales — Counter Sales Terminal
                   </span>
                 </div>
-                <span className="text-[11px] text-[#F7F5EE]/80 font-mono shrink-0">Samly POS</span>
+                <span className="text-[11px] text-[#F7F5EE]/80 font-mono shrink-0">Samley Retail POS</span>
               </div>
 
               {/* UI Component Representation of the Sales Counter Terminal */}
@@ -240,7 +240,7 @@ export const HomePage: React.FC<HomePageProps> = ({ navigate, setDomain }) => {
             Designed for How Ghanaian Provision Shops Really Operate
           </h2>
           <p className="text-base text-[#123B2A]/80 leading-relaxed mb-8">
-            Traditional provision shops have a unique workflow: customers place items on the counter, shop attendants fetch stock from shelves, and the owner calculates totals and collects money. Samly replaces mental calculations and handwritten notebook records with a structured, reliable digital counter POS.
+            Traditional provision shops have a unique workflow: customers place items on the counter, shop attendants fetch stock from shelves, and the owner calculates totals and collects money. Samley Retail replaces mental calculations and handwritten notebook records with a structured, reliable digital counter POS.
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
@@ -284,7 +284,7 @@ export const HomePage: React.FC<HomePageProps> = ({ navigate, setDomain }) => {
             Core Operational Capabilities
           </h2>
           <p className="text-sm text-[#123B2A]/70">
-            Every feature in Samly was built exclusively for traditional provision shops. No bloated supermarket modules.
+            Every feature in Samley Retail was built exclusively for traditional provision shops. No bloated supermarket modules.
           </p>
         </div>
 
@@ -351,11 +351,11 @@ export const HomePage: React.FC<HomePageProps> = ({ navigate, setDomain }) => {
         </div>
       </section>
 
-      {/* How Samly Works Summary */}
+      {/* How Samley Retail Works Summary */}
       <section className="py-16 bg-[#123B2A] text-[#F7F5EE] px-4 sm:px-6 lg:px-8">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-2xl sm:text-3xl font-bold mb-3">How Samly Works</h2>
+            <h2 className="text-2xl sm:text-3xl font-bold mb-3">How Samley Retail Works</h2>
             <p className="text-sm text-[#F7F5EE]/70 max-w-xl mx-auto">
               From registration to everyday counter sales, here is the customer journey.
             </p>
@@ -372,7 +372,7 @@ export const HomePage: React.FC<HomePageProps> = ({ navigate, setDomain }) => {
 
             <div className="bg-[#0c271c] p-5 rounded-lg border border-[#C5A15A]/20">
               <div className="text-xs font-bold text-[#C5A15A] mb-2 font-mono">02. VERIFY PHONE</div>
-              <h4 className="font-bold text-sm mb-1 text-white">SasuSync OTP</h4>
+              <h4 className="font-bold text-sm mb-1 text-white">Samley Retail OTP</h4>
               <p className="text-xs text-[#F7F5EE]/70">
                 Receive an immediate SMS verification code on your phone to confirm ownership.
               </p>
@@ -412,7 +412,7 @@ export const HomePage: React.FC<HomePageProps> = ({ navigate, setDomain }) => {
               <span className="text-xs font-semibold text-[#C5A15A] uppercase tracking-wider">
                 Full Provision Shop License
               </span>
-              <h3 className="text-2xl font-bold text-[#123B2A] mt-1">Samly Monthly Subscription</h3>
+              <h3 className="text-2xl font-bold text-[#123B2A] mt-1">Samley Retail Monthly Subscription</h3>
               <p className="text-xs text-[#123B2A]/70 mt-1">
                 For traditional Ghanaian provision shop owners
               </p>

@@ -33,7 +33,7 @@ interface SamleyAIAssistantProps {
 const INITIAL_MESSAGE: ChatMessage = {
   id: 'intro-1',
   sender: 'ai',
-  text: "Hello! 👋 I'm SamleyAI, your Samly assistant. I can help you understand how Samly works, explore its features, learn about pricing and guide you through registration. What would you like to know?",
+  text: "Hello! 👋 I'm SamleyAI, your Samley Retail assistant. I can help you understand how Samley Retail works, explore its features, learn about pricing and guide you through registration. What would you like to know?",
   timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
   links: [
     { label: 'Register Shop', route: '/register', domain: 'app' },
@@ -43,10 +43,10 @@ const INITIAL_MESSAGE: ChatMessage = {
 };
 
 const SUGGESTED_QUESTIONS = [
-  'What is Samly?',
-  'How much does Samly cost?',
+  'What is Samley Retail?',
+  'How much does Samley Retail cost?',
   'How do I register my shop?',
-  'What can Samly help me manage?',
+  'What can Samley Retail help me manage?',
 ];
 
 export const SamleyAIAssistant: React.FC<SamleyAIAssistantProps> = ({
@@ -250,7 +250,7 @@ export const SamleyAIAssistant: React.FC<SamleyAIAssistantProps> = ({
                   </span>
                 </div>
                 <p className="text-[10px] text-[#F7F5EE]/75">
-                  A product by SamTeck Digital · Visitor Assistant
+                  Smarter Shops, Better Business · Visitor Assistant
                 </p>
               </div>
             </div>
@@ -266,7 +266,7 @@ export const SamleyAIAssistant: React.FC<SamleyAIAssistantProps> = ({
 
           {/* Subheader info strip */}
           <div className="bg-[#C5A15A]/15 border-b border-[#C5A15A]/20 px-3.5 py-1.5 text-[10px] text-[#123B2A]/80 flex items-center justify-between">
-            <span>Ask anything about Samly features, registration & pricing</span>
+            <span>Ask anything about Samley Retail features, registration & pricing</span>
             <span className="font-semibold text-[#123B2A]">GH₵ 300/mo</span>
           </div>
 

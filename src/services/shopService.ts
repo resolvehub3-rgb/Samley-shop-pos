@@ -80,7 +80,7 @@ export async function submitRegistrationApplication(data: {
   location: string;
 }): Promise<{ success: boolean; application?: ShopApplication; error?: string }> {
   const application: ShopApplication = {
-    id: `app-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`,
+    id: crypto.randomUUID(),
     shop_name: data.shopName,
     applicant_name: data.applicantName,
     email: data.email,

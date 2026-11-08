@@ -16,7 +16,7 @@ export const HowItWorksPage: React.FC<HowItWorksPageProps> = ({ navigate, setDom
     },
     {
       num: '02',
-      title: 'Verify Phone Number via SasuSync OTP',
+      title: 'Verify Phone Number via Samley Retail OTP',
       desc: 'Receive a secure 6-digit SMS OTP on your registered phone number. Enter the code to verify your phone and protect the platform against bot registrations.',
       details: 'Powered by SasuSync transactional SMS gateway.',
     },
@@ -29,19 +29,19 @@ export const HowItWorksPage: React.FC<HowItWorksPageProps> = ({ navigate, setDom
     {
       num: '04',
       title: 'Approval & Account Provisioning',
-      desc: 'The Samly platform Super Admin reviews your shop application details to verify legitimate shop ownership. Upon approval, your tenant shop account is activated.',
+      desc: 'The Samley Retail platform Super Admin reviews your shop application details to verify legitimate shop ownership. Upon approval, your tenant shop account is activated.',
       details: 'Multi-tenant database schema ensures your shop data is isolated.',
     },
     {
       num: '05',
       title: 'Approval SMS Notification',
-      desc: 'You receive an approval SMS containing your official confirmation and the direct login URL (https://app.samly.com/login). Never contains your password for security.',
+      desc: 'You receive an approval SMS containing your official confirmation and the direct login URL (https://app.samleyretail.com/login). Never contains your password for security.',
       details: 'Instant delivery via SasuSync SMS.',
     },
     {
       num: '06',
-      title: 'Log In to Samly',
-      desc: 'Visit app.samly.com/login and enter your registered email address and secure password to access your dedicated provision shop management portal.',
+      title: 'Log In to Samley Retail',
+      desc: 'Visit app.samleyretail.com/login and enter your registered email address and secure password to access your dedicated provision shop management portal.',
       details: 'Protected session management with role-based authorization.',
     },
     {
@@ -66,7 +66,7 @@ export const HowItWorksPage: React.FC<HowItWorksPageProps> = ({ navigate, setDom
             Customer Onboarding Journey
           </span>
           <h1 className="text-3xl sm:text-4xl font-extrabold text-[#123B2A] mt-2 mb-4">
-            How Samly Works
+            How Samley Retail Works
           </h1>
           <p className="text-sm text-[#123B2A]/80 max-w-2xl mx-auto leading-relaxed">
             A clear, transparent 8-step journey from initial registration to everyday shop operations and monthly subscription.

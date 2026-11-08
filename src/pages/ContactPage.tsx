@@ -29,7 +29,7 @@ export const ContactPage: React.FC<ContactPageProps> = () => {
     setSubmitting(true);
     // Persist real contact enquiry in local storage or Supabase if configured
     try {
-      const enquiries = JSON.parse(localStorage.getItem('samly_contact_enquiries') || '[]');
+      const enquiries = JSON.parse(localStorage.getItem('samleyretail_contact_enquiries') || '[]');
       enquiries.push({
         id: `enq-${Date.now()}`,
         fullName,
@@ -39,7 +39,7 @@ export const ContactPage: React.FC<ContactPageProps> = () => {
         message,
         created_at: new Date().toISOString(),
       });
-      localStorage.setItem('samly_contact_enquiries', JSON.stringify(enquiries));
+      localStorage.setItem('samleyretail_contact_enquiries', JSON.stringify(enquiries));
 
       setTimeout(() => {
         setSubmitting(false);
@@ -59,7 +59,7 @@ export const ContactPage: React.FC<ContactPageProps> = () => {
             Support & Inquiries
           </span>
           <h1 className="text-3xl sm:text-4xl font-extrabold text-[#123B2A] mt-2 mb-3">
-            Contact Samly
+            Contact Samley Retail
           </h1>
           <p className="text-xs sm:text-sm text-[#123B2A]/80 leading-relaxed">
             Have questions about provision shop onboarding, Super Admin approvals, or the SasuSync/Moolre integrations? Send a message to our team at SamTeck Digital.
@@ -190,7 +190,7 @@ export const ContactPage: React.FC<ContactPageProps> = () => {
 
         {/* Attribution note */}
         <div className="mt-8 text-center text-xs text-[#123B2A]/70">
-          <div>Samly — A product by SamTeck Digital.</div>
+          <div>Samley Retail — Smarter Shops, Better Business.</div>
           <div className="mt-1">
             Registered commercial software platform for provision businesses in Ghana.
           </div>

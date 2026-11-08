@@ -12,18 +12,18 @@ export const PrivacyPolicyPage: React.FC = () => {
 
         <h1 className="text-3xl font-bold text-[#123B2A] mb-2">Privacy Policy</h1>
         <p className="text-xs text-[#123B2A]/60 mb-6">
-          Last Updated: March 2026 · Samly, operated by SamTeck Digital.
+          Last Updated: March 2026 · Samley Retail, operated by SamTeck Digital.
         </p>
 
         <div className="p-3.5 bg-[#F7F5EE] rounded-lg border border-[#C5A15A]/30 text-xs text-[#123B2A]/80 mb-8">
-          <strong>Review Notice:</strong> This privacy policy sets forth how Samly collects, uses, and protects business and personal data. This document reflects actual implemented platform architecture and should be reviewed by legal counsel before high-scale production deployment.
+          <strong>Review Notice:</strong> This privacy policy sets forth how Samley Retail collects, uses, and protects business and personal data. This document reflects actual implemented platform architecture and should be reviewed by legal counsel before high-scale production deployment.
         </div>
 
         <div className="space-y-6 text-xs sm:text-sm text-[#123B2A]/80 leading-relaxed">
           <section>
             <h2 className="text-base font-bold text-[#123B2A] mb-1.5">1. Information We Collect</h2>
             <p>
-              When you register a provision shop on Samly, we collect:
+              When you register a provision shop on Samley Retail, we collect:
             </p>
             <ul className="list-disc pl-5 mt-1 space-y-1 text-xs text-[#123B2A]/75">
               <li><strong>Personal Information:</strong> Full name, email address, phone number, and encrypted authentication credentials.</li>
@@ -42,14 +42,14 @@ export const PrivacyPolicyPage: React.FC = () => {
           <section>
             <h2 className="text-base font-bold text-[#123B2A] mb-1.5">3. Payment Processing via Moolre</h2>
             <p>
-              All subscription transactions (GH₵300/month) are handled through <strong>Moolre</strong> for customer-authorised Mobile Money payments. Samly does NOT store your Mobile Money PIN or financial credentials. Every payment is initiated explicitly by the shop owner and verified via secure server-side webhooks.
+              All subscription transactions (GH₵300/month) are handled through <strong>Moolre</strong> for customer-authorised Mobile Money payments. Samley Retail does NOT store your Mobile Money PIN or financial credentials. Every payment is initiated explicitly by the shop owner and verified via secure server-side webhooks.
             </p>
           </section>
 
           <section>
             <h2 className="text-base font-bold text-[#123B2A] mb-1.5">4. Data Storage, Isolation & Security</h2>
             <p>
-              Samly employs a genuine multi-tenant architecture with PostgreSQL Row Level Security (RLS). Each provision shop tenant operates within isolated database boundaries. One shop owner cannot inspect, alter, or access another shop’s sales, products, margins, or customer records.
+              Samley Retail employs a genuine multi-tenant architecture with PostgreSQL Row Level Security (RLS). Each provision shop tenant operates within isolated database boundaries. One shop owner cannot inspect, alter, or access another shop’s sales, products, margins, or customer records.
             </p>
           </section>
 
@@ -63,7 +63,7 @@ export const PrivacyPolicyPage: React.FC = () => {
           <section>
             <h2 className="text-base font-bold text-[#123B2A] mb-1.5">6. Contact for Privacy Enquiries</h2>
             <p>
-              For questions concerning this Privacy Policy, please contact SamTeck Digital via our official contact channel at <strong>app.samly.com</strong>.
+              For questions concerning this Privacy Policy, please contact SamTeck Digital via our official contact channel at <strong>app.samleyretail.com</strong>.
             </p>
           </section>
         </div>

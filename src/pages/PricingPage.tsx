@@ -32,7 +32,7 @@ export const PricingPage: React.FC<PricingPageProps> = ({ navigate, setDomain })
                 <span>Commercial Provision Shop License</span>
               </div>
               <h2 className="text-2xl sm:text-3xl font-extrabold text-[#123B2A]">
-                Samly Monthly Subscription
+                Samley Retail Monthly Subscription
               </h2>
               <p className="text-xs sm:text-sm text-[#123B2A]/70 mt-1">
                 Full access for one provision shop tenant and authorized shop attendants
@@ -73,7 +73,7 @@ export const PricingPage: React.FC<PricingPageProps> = ({ navigate, setDomain })
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs sm:text-sm text-[#123B2A]/85">
               <div className="flex items-start gap-2.5">
                 <Check className="w-4 h-4 text-[#123B2A] shrink-0 mt-0.5" />
-                <span>Access to the Samly provision shop management application</span>
+                <span>Access to the Samley Retail provision shop management application</span>
               </div>
               <div className="flex items-start gap-2.5">
                 <Check className="w-4 h-4 text-[#123B2A] shrink-0 mt-0.5" />
@@ -144,7 +144,7 @@ export const PricingPage: React.FC<PricingPageProps> = ({ navigate, setDomain })
         <div className="mt-8 p-4 bg-white rounded-lg border border-[#123B2A]/10 text-xs text-[#123B2A]/70 flex items-start gap-3">
           <AlertCircle className="w-4 h-4 text-[#C5A15A] shrink-0 mt-0.5" />
           <div>
-            <strong>Strict Scope Guarantee:</strong> Samly does not offer Starter, Professional, or Enterprise tiers. Every subscriber gets the exact same complete suite of features for GH₵300 per month.
+            <strong>Strict Scope Guarantee:</strong> Samley Retail does not offer Starter, Professional, or Enterprise tiers. Every subscriber gets the exact same complete suite of features for GH₵300 per month.
           </div>
         </div>
       </div>

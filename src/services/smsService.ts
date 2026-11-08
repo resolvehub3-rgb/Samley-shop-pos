@@ -1,5 +1,5 @@
 /**
- * SasuSync SMS Integration Service for Samly
+ * SasuSync SMS Integration Service for Samley Retail
  * Handles transactional SMS events: OTP, Application Status, Trial & Subscription Reminders, Payment Receipts
  */
 
@@ -38,7 +38,7 @@ export async function sendSmsNotification(params: SendSmsParams): Promise<SmsRes
 
   // SasuSync server configuration check
   const apiKey = (typeof process !== 'undefined' && process.env?.SASUSYNC_API_KEY) || '';
-  const senderId = (typeof process !== 'undefined' && process.env?.SASUSYNC_SENDER_ID) || 'Samly';
+  const senderId = (typeof process !== 'undefined' && process.env?.SASUSYNC_SENDER_ID) || 'Samley Retail';
   const baseUrl = (typeof process !== 'undefined' && process.env?.SASUSYNC_BASE_URL) || 'https://api.sasusync.com/v1';
 
   let providerStatus = 'queued';
@@ -106,38 +106,38 @@ export async function sendSmsNotification(params: SendSmsParams): Promise<SmsRes
  */
 export const SmsTemplates = {
   registrationOtp: (otp: string) =>
-    `Your Samly verification code is ${otp}. Valid for 10 minutes. Do not share this code.`,
+    `Your Samley Retail verification code is ${otp}. Valid for 10 minutes. Do not share this code.`,
 
   applicationReceived: (shopName: string) =>
-    `Hello, your registration application for "${shopName}" has been received and is under review by Samly Admin. You will receive an SMS update once reviewed.`,
+    `Hello, your registration application for "${shopName}" has been received and is under review by Samley Retail Admin. You will receive an SMS update once reviewed.`,
 
   adminNewRegistrationAlert: (shopName: string, applicant: string) =>
-    `[Samly Admin] New shop registration application submitted: "${shopName}" by ${applicant}. Review at app.samly.com.`,
+    `[Samley Retail Admin] New shop registration application submitted: "${shopName}" by ${applicant}. Review at app.samleyretail.com.`,
 
   approval: (shopName: string, loginUrl: string) =>
-    `Congratulations! Your provision shop "${shopName}" has been approved on Samly. Log in at ${loginUrl} to begin your 7-day free trial.`,
+    `Congratulations! Your provision shop "${shopName}" has been approved on Samley Retail. Log in at ${loginUrl} to begin your 7-day free trial.`,
 
   rejection: (shopName: string, reason?: string) =>
-    `Hello, your registration application for "${shopName}" was not approved at this time.${reason ? ` Reason: ${reason}` : ''} Contact Samly support for assistance.`,
+    `Hello, your registration application for "${shopName}" was not approved at this time.${reason ? ` Reason: ${reason}` : ''} Contact Samley Retail support for assistance.`,
 
   trialDay5: (daysRemaining: number) =>
-    `Samly Reminder: You have ${daysRemaining} days left on your free trial. Subscribe for GH₵300/month to keep your shop operations uninterrupted.`,
+    `Samley Retail Reminder: You have ${daysRemaining} days left on your free trial. Subscribe for GH₵300/month to keep your shop operations uninterrupted.`,
 
   trialDay6: () =>
-    `Samly Reminder: Your 7-day free trial expires tomorrow. Keep your products and sales active by renewing for GH₵300/month.`,
+    `Samley Retail Reminder: Your 7-day free trial expires tomorrow. Keep your products and sales active by renewing for GH₵300/month.`,
 
   trialDay7Expiry: () =>
-    `Samly Alert: Your 7-day free trial has expired. Please subscribe for GH₵300/month to resume sales and inventory modifications. Your data is safely preserved.`,
+    `Samley Retail Alert: Your 7-day free trial has expired. Please subscribe for GH₵300/month to resume sales and inventory modifications. Your data is safely preserved.`,
 
   subReminderDay5: () =>
-    `Samly Reminder: Your monthly subscription expires in 5 days. Renew now for GH₵300/month to ensure uninterrupted access.`,
+    `Samley Retail Reminder: Your monthly subscription expires in 5 days. Renew now for GH₵300/month to ensure uninterrupted access.`,
 
   subReminderDay2: () =>
-    `Samly Reminder: Your monthly subscription expires in 2 days. Authorise your GH₵300 payment to continue uninterrupted.`,
+    `Samley Retail Reminder: Your monthly subscription expires in 2 days. Authorise your GH₵300 payment to continue uninterrupted.`,
 
   subExpiry: () =>
-    `Samly Alert: Your monthly subscription has expired. Please make your GH₵300 renewal payment to resume processing sales.`,
+    `Samley Retail Alert: Your monthly subscription has expired. Please make your GH₵300 renewal payment to resume processing sales.`,
 
   paymentSuccess: (amountGhs: number, expiryDate: string) =>
-    `Samly: Payment of GH₵${amountGhs} received successfully. Your subscription is active until ${new Date(expiryDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}. Thank you!`,
+    `Samley Retail: Payment of GH₵${amountGhs} received successfully. Your subscription is active until ${new Date(expiryDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}. Thank you!`,
 };

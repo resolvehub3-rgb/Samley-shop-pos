@@ -1,6 +1,6 @@
 {
-  "name": "Samly — Provision Shop Management SaaS",
-  "description": "Multi-tenant SaaS platform for Ghanaian provision shop owners to manage products, inventory, fast sales, and subscriptions. A product by SamTeck Digital.",
+  "name": "Samley Retail — Provision Shop Management SaaS",
+  "description": "Multi-tenant SaaS platform for Ghanaian provision shop owners to manage products, inventory, fast sales, and subscriptions. Smarter Shops, Better Business.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

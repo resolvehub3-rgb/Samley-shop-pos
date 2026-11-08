@@ -145,7 +145,7 @@ export default function App() {
           />
         );
       }
-      return <AdminDashboard session={session} navigate={navigate} />;
+      return <AdminDashboard session={session} navigate={navigate} currentRoute={currentRoute} />;
     }
 
     // 4. Shop Owner SaaS Application Routes (Protected)
@@ -206,7 +206,9 @@ export default function App() {
 
       <main className="flex-1">{renderCurrentPage()}</main>
 
-      <Footer navigate={navigate} setDomain={setCurrentDomain} />
+      {!currentRoute.startsWith('/admin') && !currentRoute.startsWith('/app') && currentRoute !== '/register' && currentRoute !== '/login' && (
+        <Footer navigate={navigate} setDomain={setCurrentDomain} />
+      )}
 
       {/* SamleyAI Official Visitor Assistant (Marketing Pages) */}
       {currentDomain === 'marketing' && (

@@ -1,5 +1,5 @@
 /**
- * Pure calculation logic for Samly Provision Shop Management
+ * Pure calculation logic for Samley Retail Provision Shop Management
  * Handles inventory unit conversion, line total math, gross profit calculations
  */
 

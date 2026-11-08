@@ -34,11 +34,8 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ navigate, setDomain 
   const [location, setLocation] = useState('');
 
   // Session 3: OTP Verification
-  const [generatedOtp, setGeneratedOtp] = useState('');
   const [enteredOtp, setEnteredOtp] = useState('');
-  const [otpExpiry, setOtpExpiry] = useState<number>(0);
   const [resendCooldown, setResendCooldown] = useState<number>(0);
-  const [attempts, setAttempts] = useState(0);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -84,20 +81,25 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ navigate, setDomain 
     }
 
     setLoading(true);
-    // Generate secure 6-digit random OTP
-    const code = Math.floor(100000 + Math.random() * 900000).toString();
-    setGeneratedOtp(code);
-    setOtpExpiry(Date.now() + 10 * 60 * 1000); // 10 minutes expiry
+    try {
+      const response = await fetch('/api/sms/send-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phoneNumber }),
+      });
+      const data = await response.json();
+      if (!response.ok || !data.success) {
+        setLoading(false);
+        setError(data.error || 'Failed to send verification code.');
+        return;
+      }
+    } catch (err) {
+      setLoading(false);
+      setError('Failed to send verification code. Please try again.');
+      return;
+    }
+
     setResendCooldown(45); // 45 seconds cooldown
-    setAttempts(0);
-
-    // Send real SMS notification via SasuSync
-    await sendSmsNotification({
-      recipientPhone: phoneNumber,
-      messageType: 'otp',
-      messageText: SmsTemplates.registrationOtp(code),
-    });
-
     setLoading(false);
     setStep(3);
   };
@@ -107,24 +109,31 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ navigate, setDomain 
     e.preventDefault();
     setError(null);
 
-    if (Date.now() > otpExpiry) {
-      setError('OTP has expired. Please request a new code.');
-      return;
-    }
-
-    if (enteredOtp.trim() !== generatedOtp) {
-      const newAttempts = attempts + 1;
-      setAttempts(newAttempts);
-      if (newAttempts >= 5) {
-        setError('Too many incorrect attempts. Please resend a new OTP.');
-        setGeneratedOtp('');
-      } else {
-        setError(`Incorrect OTP code. ${5 - newAttempts} attempts remaining.`);
-      }
+    if (!enteredOtp.trim()) {
+      setError('Please enter the verification code sent to your phone.');
       return;
     }
 
     setLoading(true);
+
+    // Verify OTP server-side
+    try {
+      const verifyResponse = await fetch('/api/sms/verify-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phoneNumber, otp: enteredOtp.trim() }),
+      });
+      const verifyData = await verifyResponse.json();
+      if (!verifyResponse.ok || !verifyData.success) {
+        setLoading(false);
+        setError(verifyData.error || 'Invalid verification code.');
+        return;
+      }
+    } catch (err) {
+      setLoading(false);
+      setError('Verification failed. Please try again.');
+      return;
+    }
 
     // 1. Submit application to backend/Supabase
     const result = await submitRegistrationApplication({
@@ -164,17 +173,24 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ navigate, setDomain 
     if (resendCooldown > 0) return;
     setError(null);
     setLoading(true);
-    const code = Math.floor(100000 + Math.random() * 900000).toString();
-    setGeneratedOtp(code);
-    setOtpExpiry(Date.now() + 10 * 60 * 1000);
+    try {
+      const response = await fetch('/api/sms/send-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phoneNumber }),
+      });
+      const data = await response.json();
+      if (!response.ok || !data.success) {
+        setLoading(false);
+        setError(data.error || 'Failed to resend verification code.');
+        return;
+      }
+    } catch (err) {
+      setLoading(false);
+      setError('Failed to resend verification code. Please try again.');
+      return;
+    }
     setResendCooldown(45);
-    setAttempts(0);
-
-    await sendSmsNotification({
-      recipientPhone: phoneNumber,
-      messageType: 'otp',
-      messageText: SmsTemplates.registrationOtp(code),
-    });
     setLoading(false);
   };
 
@@ -250,7 +266,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ navigate, setDomain 
 
             <div>
               <label className="block text-xs font-semibold text-[#123B2A] mb-1">
-                Phone Number (For SasuSync OTP) <span className="text-red-500">*</span>
+                Phone Number (For Samley Retail OTP) <span className="text-red-500">*</span>
               </label>
               <div className="relative">
                 <Smartphone className="w-4 h-4 text-[#123B2A]/40 absolute left-3 top-3" />
@@ -397,7 +413,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ navigate, setDomain 
           </form>
         )}
 
-        {/* STEP 3: Phone Verification via SasuSync OTP */}
+        {/* STEP 3: Phone Verification via Samley Retail OTP */}
         {step === 3 && (
           <form onSubmit={handleVerifyOtpAndSubmit} className="space-y-4">
             <div className="text-center">
@@ -406,13 +422,9 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ navigate, setDomain 
               </div>
               <div className="text-xl font-bold text-[#123B2A] mb-1">Verify Your Phone</div>
               <p className="text-xs text-[#123B2A]/70 mb-2">
-                We sent a 6-digit SasuSync OTP to{' '}
+                We sent a 6-digit Samley Retail OTP to{' '}
                 <span className="font-semibold text-[#123B2A]">{phoneNumber}</span>.
               </p>
-              {/* Development helper banner showing generated OTP if in testing */}
-              <div className="p-2 bg-[#F7F5EE] border border-[#C5A15A]/30 rounded text-[11px] text-[#123B2A]/80 font-mono mb-4">
-                SasuSync Dispatch: Code is <span className="font-bold text-[#123B2A]">{generatedOtp}</span>
-              </div>
             </div>
 
             <div>

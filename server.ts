@@ -38,17 +38,17 @@ const rateLimiter = (req: express.Request, res: express.Response, next: express.
   next();
 };
 
-const SAMLEY_AI_SYSTEM_INSTRUCTION = `You are SamleyAI, the official AI visitor-support assistant for Samly.
-Samly is a commercial provision shop management SaaS platform operated by SamTeck Digital, designed specifically for traditional provision shops in Ghana.
+const SAMLEY_AI_SYSTEM_INSTRUCTION = `You are SamleyAI, the official AI visitor-support assistant for Samley Retail.
+Samley Retail is a commercial provision shop management SaaS platform operated by SamTeck Digital, designed specifically for traditional provision shops in Ghana.
 
 YOUR ROLE & IDENTITY:
 - Name: SamleyAI
-- Attribution: "Samly — A product by SamTeck Digital"
-- Purpose: Help website visitors understand Samly, learn how the platform works, answer questions about features, pricing, trials, registration, and guide them to the right pages or links.
+- Attribution: "Samley Retail — Smarter Shops, Better Business"
+- Purpose: Help website visitors understand Samley Retail, learn how the platform works, answer questions about features, pricing, trials, registration, and guide them to the right pages or links.
 - You are a public website visitor-support assistant. You are NOT a business-management assistant, and you do not access private shop databases or live business records.
 
 CORE PRODUCT KNOWLEDGE BASE:
-1. WHAT SAMLY IS:
+1. WHAT SAMLEYRETAIL IS:
    - A specialized multi-tenant SaaS built around the real daily operating workflow of traditional Ghanaian provision shops.
    - Replaces handwritten notebooks and mental calculations with a fast digital counter terminal, inventory ledger, supplier invoice tracking, and gross profit reports.
    - Currency is Ghana Cedi (GH₵ / GHS).
@@ -70,7 +70,7 @@ CORE PRODUCT KNOWLEDGE BASE:
 4. SUBSCRIPTION & PRICING:
    - Exactly One Transparent Plan: GH₵ 300 per shop per month. No setup fees, no tiers, no annual lock-in.
    - 7-Day Free Trial: Every approved shop receives one 7-day free trial. The 7 days start only on the shopkeeper's first login and dashboard access.
-   - Payment Method: Customer-authorised Moolre Mobile Money (MTN MoMo, Telecel Cash, AirtelTigo Money). The shopkeeper actively authorises the prompt on their phone; Samly NEVER auto-debits funds.
+   - Payment Method: Customer-authorised Moolre Mobile Money (MTN MoMo, Telecel Cash, AirtelTigo Money). The shopkeeper actively authorises the prompt on their phone; Samley Retail NEVER auto-debits funds.
    - Expiry Rules: If a subscription expires, shop records are never deleted. New sales and stock adjustments are paused until renewal, then full access is restored immediately upon payment.
 
 5. PUBLIC WEBSITE LINKS & GUIDANCE:
@@ -79,8 +79,8 @@ CORE PRODUCT KNOWLEDGE BASE:
    - How It Works: /how-it-works
    - Pricing: /pricing
    - Contact Support: /contact
-   - Shop Registration: app.samly.com/register (or /register)
-   - Account Login: app.samly.com/login (or /login)
+   - Shop Registration: app.samleyretail.com/register (or /register)
+   - Account Login: app.samleyretail.com/login (or /login)
 
 BEHAVIOUR & RESPONSE RULES:
 - Use clear, friendly, and professional language that is easy for traditional Ghanaian shopkeepers to understand.
@@ -210,6 +210,81 @@ app.post('/api/samley-ai/chat', rateLimiter, async (req, res) => {
   }
 });
 
+// In-memory OTP store for real-time SMS verification (expires after 10 minutes)
+const otpStore = new Map<string, { code: string; expiresAt: number }>();
+
+// Send OTP via SasuSync (server-side, never exposed to browser)
+app.post('/api/sms/send-otp', async (req, res) => {
+  const { phoneNumber } = req.body || {};
+  if (!phoneNumber || typeof phoneNumber !== 'string' || phoneNumber.trim().length === 0) {
+    return res.status(400).json({ success: false, error: 'Phone number is required.' });
+  }
+
+  const code = Math.floor(100000 + Math.random() * 900000).toString();
+  otpStore.set(phoneNumber.trim(), { code, expiresAt: Date.now() + 10 * 60 * 1000 });
+
+  const apiKey = process.env.SASUSYNC_API_KEY;
+  const senderId = process.env.SASUSYNC_SENDER_ID || 'Samley Retail';
+  const baseUrl = process.env.SASUSYNC_BASE_URL || 'https://api.sasusync.com/v1';
+
+  let providerStatus = apiKey ? 'queued' : 'simulated_missing_credentials';
+
+  if (apiKey) {
+    try {
+      const response = await fetch(`${baseUrl}/sms/send`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({
+          sender_id: senderId,
+          recipient: phoneNumber.trim(),
+          message: `Your Samley Retail verification code is ${code}. Valid for 10 minutes. Do not share this code.`,
+        }),
+      });
+      if (response.ok) {
+        providerStatus = 'delivered';
+      } else {
+        providerStatus = 'failed';
+      }
+    } catch (err) {
+      console.error('SasuSync OTP dispatch error:', err);
+      providerStatus = 'delivery_error';
+    }
+  }
+
+  return res.json({
+    success: true,
+    status: providerStatus,
+  });
+});
+
+// Verify OTP (server-side)
+app.post('/api/sms/verify-otp', (req, res) => {
+  const { phoneNumber, otp } = req.body || {};
+  if (!phoneNumber || !otp) {
+    return res.status(400).json({ success: false, error: 'Phone number and OTP are required.' });
+  }
+
+  const record = otpStore.get(String(phoneNumber).trim());
+  if (!record) {
+    return res.status(400).json({ success: false, error: 'No verification code was requested for this number.' });
+  }
+
+  if (Date.now() > record.expiresAt) {
+    otpStore.delete(String(phoneNumber).trim());
+    return res.status(400).json({ success: false, error: 'Verification code has expired. Please request a new one.' });
+  }
+
+  if (record.code !== String(otp).trim()) {
+    return res.status(400).json({ success: false, error: 'Incorrect verification code.' });
+  }
+
+  otpStore.delete(String(phoneNumber).trim());
+  return res.json({ success: true });
+});
+
 async function startServer() {
   const isProd = process.env.NODE_ENV === 'production';
 
@@ -227,8 +302,8 @@ async function startServer() {
     app.use(vite.middlewares);
   }
 
-  app.listen(port, '0.0.0.0', () => {
-    console.log(`Samly full-stack server running on http://0.0.0.0:${port}`);
+  app.listen(port, 'localhost', () => {
+    console.log(`Samley Retail full-stack server running on http://localhost:${port}`);
   });
 }
 

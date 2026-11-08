@@ -1,8 +1,8 @@
 -- =========================================================================
--- SAMLY — PROVISION SHOP MANAGEMENT SAAS DATABASE SCHEMA
+-- SAMLEYRETAIL — PROVISION SHOP MANAGEMENT SAAS DATABASE SCHEMA
 -- Multi-Tenant PostgreSQL Schema with Row Level Security (RLS)
 -- Provider: Supabase
--- A product by SamTeck Digital
+-- Smarter Shops, Better Business
 -- =========================================================================
 
 -- Enable required extensions
@@ -141,7 +141,7 @@ CREATE TABLE IF NOT EXISTS public.sale_items (
 CREATE TABLE IF NOT EXISTS public.subscriptions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     shop_id UUID NOT NULL REFERENCES public.shops(id) ON DELETE CASCADE,
-    plan_name TEXT NOT NULL DEFAULT 'Samly Monthly',
+    plan_name TEXT NOT NULL DEFAULT 'Samley Retail Monthly',
     amount NUMERIC(10, 2) NOT NULL DEFAULT 300.00,
     start_date TIMESTAMPTZ NOT NULL,
     end_date TIMESTAMPTZ NOT NULL,
@@ -230,57 +230,92 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- User Profiles: Users can read their own profile, super admins can read all
+DROP POLICY IF EXISTS "Users read own profile" ON public.user_profiles;
 CREATE POLICY "Users read own profile" ON public.user_profiles
     FOR SELECT USING (auth.uid() = id OR public.is_super_admin());
 
+DROP POLICY IF EXISTS "Users update own profile" ON public.user_profiles;
 CREATE POLICY "Users update own profile" ON public.user_profiles
     FOR UPDATE USING (auth.uid() = id);
 
 -- Shops: Tenant owners can read their own shop; super admins can manage all
+DROP POLICY IF EXISTS "Tenant read own shop" ON public.shops;
 CREATE POLICY "Tenant read own shop" ON public.shops
     FOR SELECT USING (id = public.current_shop_id() OR public.is_super_admin());
 
+DROP POLICY IF EXISTS "Tenant update own shop" ON public.shops;
 CREATE POLICY "Tenant update own shop" ON public.shops
     FOR UPDATE USING (id = public.current_shop_id() OR public.is_super_admin());
 
 -- Products & Categories & Units: Strictly scoped to tenant shop_id
+DROP POLICY IF EXISTS "Tenant manage categories" ON public.categories;
 CREATE POLICY "Tenant manage categories" ON public.categories
     FOR ALL USING (shop_id = public.current_shop_id() OR public.is_super_admin());
 
+DROP POLICY IF EXISTS "Tenant manage products" ON public.products;
 CREATE POLICY "Tenant manage products" ON public.products
     FOR ALL USING (shop_id = public.current_shop_id() OR public.is_super_admin());
 
+DROP POLICY IF EXISTS "Tenant manage selling_units" ON public.selling_units;
 CREATE POLICY "Tenant manage selling_units" ON public.selling_units
     FOR ALL USING (shop_id = public.current_shop_id() OR public.is_super_admin());
 
+DROP POLICY IF EXISTS "Tenant manage stock_movements" ON public.stock_movements;
 CREATE POLICY "Tenant manage stock_movements" ON public.stock_movements
     FOR ALL USING (shop_id = public.current_shop_id() OR public.is_super_admin());
 
+DROP POLICY IF EXISTS "Tenant manage sales" ON public.sales;
 CREATE POLICY "Tenant manage sales" ON public.sales
     FOR ALL USING (shop_id = public.current_shop_id() OR public.is_super_admin());
 
+DROP POLICY IF EXISTS "Tenant manage sale_items" ON public.sale_items;
 CREATE POLICY "Tenant manage sale_items" ON public.sale_items
     FOR ALL USING (shop_id = public.current_shop_id() OR public.is_super_admin());
 
+DROP POLICY IF EXISTS "Tenant manage subscriptions" ON public.subscriptions;
 CREATE POLICY "Tenant manage subscriptions" ON public.subscriptions
     FOR ALL USING (shop_id = public.current_shop_id() OR public.is_super_admin());
 
+DROP POLICY IF EXISTS "Tenant manage transactions" ON public.payment_transactions;
 CREATE POLICY "Tenant manage transactions" ON public.payment_transactions
     FOR ALL USING (shop_id = public.current_shop_id() OR public.is_super_admin());
 
 -- Shop Applications: Super Admin reads/manages; Public/Anon can insert on registration
+DROP POLICY IF EXISTS "Public insert shop_applications" ON public.shop_applications;
 CREATE POLICY "Public insert shop_applications" ON public.shop_applications
     FOR INSERT WITH CHECK (true);
 
+DROP POLICY IF EXISTS "Super admin view applications" ON public.shop_applications;
 CREATE POLICY "Super admin view applications" ON public.shop_applications
     FOR SELECT USING (public.is_super_admin());
 
+DROP POLICY IF EXISTS "Super admin update applications" ON public.shop_applications;
 CREATE POLICY "Super admin update applications" ON public.shop_applications
     FOR UPDATE USING (public.is_super_admin());
 
 -- SMS & Audit logs: Read by super admin and shop owner (for their own shop)
+DROP POLICY IF EXISTS "Read sms_logs" ON public.sms_logs;
 CREATE POLICY "Read sms_logs" ON public.sms_logs
     FOR SELECT USING (shop_id = public.current_shop_id() OR public.is_super_admin());
 
+DROP POLICY IF EXISTS "Read audit_logs" ON public.audit_logs;
 CREATE POLICY "Read audit_logs" ON public.audit_logs
     FOR SELECT USING (shop_id = public.current_shop_id() OR public.is_super_admin());
+
+-- =========================================================================
+-- SEED: Platform Super Admin (no test shop data)
+-- =========================================================================
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+
+DO $$
+DECLARE
+  admin_uid uuid := gen_random_uuid();
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM auth.users WHERE email = 'samley@gmail.com') THEN
+    INSERT INTO auth.users (id, email, encrypted_password, email_confirmed_at, role, aud)
+    VALUES (admin_uid, 'samley@gmail.com', crypt('GoodGod1$', gen_salt('bf')), now(), 'authenticated', 'authenticated');
+
+    INSERT INTO public.user_profiles (id, shop_id, full_name, email, phone_number, role)
+    VALUES (admin_uid, NULL, 'Platform Super Admin', 'samley@gmail.com', '0000000000', 'super_admin');
+  END IF;
+END $$;

@@ -17,14 +17,14 @@ export const Footer: React.FC<FooterProps> = ({ navigate, setDomain }) => {
               <div className="w-8 h-8 rounded-lg bg-[#C5A15A] text-[#123B2A] flex items-center justify-center font-bold">
                 <ShoppingBag className="w-4 h-4" />
               </div>
-              <span className="text-xl font-bold tracking-tight text-[#F7F5EE]">Samly</span>
+              <span className="text-xl font-bold tracking-tight text-[#F7F5EE]">Samley Retail</span>
             </div>
             <p className="text-sm text-[#F7F5EE]/80 max-w-md leading-relaxed mb-4">
               A specialized multi-tenant SaaS management platform designed for traditional provision shops in Ghana.
               Streamline product registration, configurable selling units, fast counter sales, inventory tracking, and business performance.
             </p>
             <div className="text-xs text-[#C5A15A] font-medium tracking-wide">
-              Samly — A product by SamTeck Digital.
+              Samley Retail — Smarter Shops, Better Business.
             </div>
           </div>
 
@@ -148,15 +148,9 @@ export const Footer: React.FC<FooterProps> = ({ navigate, setDomain }) => {
 
         <div className="mt-12 pt-8 border-t border-[#F7F5EE]/10 flex flex-col sm:flex-row justify-between items-center text-xs text-[#F7F5EE]/60 gap-4">
           <div>
-            © {new Date().getFullYear()} Samly. All rights reserved. Operating in Ghana under SamTeck Digital.
+            © {new Date().getFullYear()} Samley Retail. All rights reserved. Operating in Ghana under SamTeck Digital.
           </div>
-          <div className="flex items-center gap-4">
-            <span>Primary Deep Green: #123B2A</span>
-            <span>·</span>
-            <span>Secondary Warm Ivory: #F7F5EE</span>
-            <span>·</span>
-            <span>Accent Muted Gold: #C5A15A</span>
-          </div>
+
         </div>
       </div>
     </footer>

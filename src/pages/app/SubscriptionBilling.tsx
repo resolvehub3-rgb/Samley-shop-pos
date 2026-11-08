@@ -171,7 +171,7 @@ export const SubscriptionBilling: React.FC<SubscriptionBillingProps> = ({
               </div>
               <h2 className="text-xl sm:text-2xl font-extrabold text-[#123B2A] mt-0.5">
                 {shop?.subscription_status === 'active'
-                  ? 'Samly Monthly License (Active)'
+                  ? 'Samley Retail Monthly License (Active)'
                   : shop?.subscription_status === 'trialing'
                   ? '7-Day Free Trial (Active)'
                   : 'Subscription Expired'}
@@ -326,7 +326,7 @@ export const SubscriptionBilling: React.FC<SubscriptionBillingProps> = ({
                   <div className="p-4 bg-[#F7F5EE] rounded-xl border border-[#123B2A]/10 space-y-2 text-xs">
                     <div className="flex justify-between">
                       <span className="text-[#123B2A]/70">Package:</span>
-                      <span className="font-semibold text-[#123B2A]">Samly Monthly Subscription</span>
+                      <span className="font-semibold text-[#123B2A]">Samley Retail Monthly Subscription</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-[#123B2A]/70">Duration:</span>

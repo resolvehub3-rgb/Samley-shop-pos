@@ -2,15 +2,15 @@
 
 @theme {
   --font-sans: 'Montserrat', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --color-samly-green: #123B2A;
-  --color-samly-green-dark: #0c271c;
-  --color-samly-green-light: #1b523b;
-  --color-samly-green-subtle: #eaf1ed;
-  --color-samly-ivory: #F7F5EE;
-  --color-samly-ivory-warm: #EFECE2;
-  --color-samly-gold: #C5A15A;
-  --color-samly-gold-hover: #b39049;
-  --color-samly-gold-light: #f8f3e6;
+  --color-samleyretail-green: #123B2A;
+  --color-samleyretail-green-dark: #0c271c;
+  --color-samleyretail-green-light: #1b523b;
+  --color-samleyretail-green-subtle: #eaf1ed;
+  --color-samleyretail-ivory: #F7F5EE;
+  --color-samleyretail-ivory-warm: #EFECE2;
+  --color-samleyretail-gold: #C5A15A;
+  --color-samleyretail-gold-hover: #b39049;
+  --color-samleyretail-gold-light: #f8f3e6;
 }
 
 :root {

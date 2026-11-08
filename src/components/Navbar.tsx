@@ -24,9 +24,9 @@ export const Navbar: React.FC<NavbarProps> = ({
       {/* Domain Indicator & Switcher Strip */}
       <div className="bg-[#123B2A] text-[#F7F5EE] text-xs py-1.5 px-4 sm:px-8 flex items-center justify-between border-b border-[#C5A15A]/20">
         <div className="flex items-center gap-2">
-          <span className="font-semibold text-[#C5A15A]">Samly</span>
+          <span className="font-semibold text-[#C5A15A]">Samley Retail</span>
           <span className="opacity-60">·</span>
-          <span className="opacity-80">A product by SamTeck Digital</span>
+          <span className="opacity-80">Smarter Shops, Better Business</span>
         </div>
 
         <div className="flex items-center gap-3">
@@ -43,7 +43,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               }`}
             >
               <Globe className="w-3.5 h-3.5" />
-              <span>www.samly.com</span>
+              <span>www.samleyretail.com</span>
             </button>
             <button
               onClick={() => {
@@ -63,7 +63,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               }`}
             >
               <Store className="w-3.5 h-3.5" />
-              <span>app.samly.com</span>
+              <span>app.samleyretail.com</span>
             </button>
           </div>
         </div>
@@ -91,7 +91,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           </div>
           <div>
             <span className="text-xl font-bold tracking-tight text-[#123B2A] whitespace-nowrap">
-              Samly
+              Samley Retail
             </span>
           </div>
         </button>

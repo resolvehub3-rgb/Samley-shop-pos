@@ -1,5 +1,5 @@
 /**
- * Moolre Mobile Money Integration Service for Samly
+ * Moolre Mobile Money Integration Service for Samley Retail
  *
  * Rules:
  * - Customer-authorised payment: no automatic deduction, owner must initiate and authorise on phone.
@@ -32,7 +32,7 @@ export async function initiateMoolrePayment(
 ): Promise<PaymentInitiationResult> {
   const { shopId, shopName, momoNumber, amount = MONTHLY_SUBSCRIPTION_FEE_GHS } = params;
 
-  const reference = `SAMLY-SUB-${Date.now()}-${Math.floor(1000 + Math.random() * 9000)}`;
+  const reference = `SAMLEYRETAIL-SUB-${Date.now()}-${Math.floor(1000 + Math.random() * 9000)}`;
 
   const apiKey = (typeof process !== 'undefined' && process.env?.MOOLRE_API_KEY) || '';
   const accountNumber = (typeof process !== 'undefined' && process.env?.MOOLRE_ACCOUNT_NUMBER) || '';
@@ -86,7 +86,7 @@ export async function initiateMoolrePayment(
         currency: 'GHS',
         reference,
         customer_phone: momoNumber,
-        description: `Samly Monthly Subscription for ${shopName}`,
+        description: `Samley Retail Monthly Subscription for ${shopName}`,
       }),
     });
 
