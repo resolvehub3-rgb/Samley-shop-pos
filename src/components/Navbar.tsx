@@ -242,13 +242,13 @@ export const Navbar: React.FC<NavbarProps> = ({
               </button>
             </div>
           ) : (
-            <div className="flex items-center gap-2">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
               <button
                 onClick={() => {
                   setDomain('app');
                   navigate('/login');
                 }}
-                className="px-3.5 py-2 text-xs font-medium text-[#123B2A] hover:text-[#123B2A] hover:bg-[#123B2A]/5 rounded-lg transition-colors whitespace-nowrap"
+                className="px-3.5 py-2 text-xs font-medium text-[#123B2A] hover:text-[#123B2A] hover:bg-[#123B2A]/5 rounded-lg transition-colors whitespace-nowrap text-center"
               >
                 Login
               </button>
@@ -257,7 +257,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   setDomain('app');
                   navigate('/register');
                 }}
-                className="px-4 py-2 text-xs font-semibold text-white bg-[#123B2A] hover:bg-[#1b523b] rounded-lg shadow-sm transition-colors flex items-center gap-1.5 whitespace-nowrap"
+                className="px-4 py-2 text-xs font-semibold text-white bg-[#123B2A] hover:bg-[#1b523b] rounded-lg shadow-sm transition-colors flex items-center justify-center gap-1.5 whitespace-nowrap"
               >
                 <span>Register Shop</span>
                 <ArrowRight className="w-3.5 h-3.5" />
