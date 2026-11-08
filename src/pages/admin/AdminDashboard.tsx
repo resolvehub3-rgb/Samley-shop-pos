@@ -43,6 +43,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ session, navigat
   const [activeTab, setActiveTab] = useState<
     'overview' | 'applications' | 'shops' | 'sms' | 'audit' | 'config'
   >('overview');
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const [overview, setOverview] = useState({
     totalShops: 0,
@@ -162,7 +163,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ session, navigat
   return (
     <div className="bg-[#123B2A] text-[#F7F5EE] min-h-screen flex flex-col md:flex-row">
       {/* Sidebar Menu */}
-      <aside className="w-full md:w-64 shrink-0 border-b md:border-b-0 md:border-r border-[#C5A15A]/20 py-4 md:py-6 px-4 flex md:flex-col gap-2 md:sticky md:top-16 md:h-[calc(100vh-4rem)] overflow-x-auto md:overflow-y-auto">
+      <aside className={`${mobileMenuOpen ? 'flex' : 'hidden'} md:flex w-full md:w-64 shrink-0 border-b md:border-b-0 md:border-r border-[#C5A15A]/20 py-4 md:py-6 px-4 flex-col md:flex-col gap-2 md:sticky md:top-16 md:h-[calc(100vh-4rem)] overflow-y-auto`}>
         <div className="flex items-center gap-3 mb-6">
           <div className="w-10 h-10 rounded-lg bg-[#C5A15A] text-[#123B2A] flex items-center justify-center font-bold">
             <Shield className="w-6 h-6" />
@@ -185,6 +186,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ session, navigat
             onClick={() => {
               setActiveTab(item.id as any);
               navigate(item.route);
+              setMobileMenuOpen(false);
             }}
             className={`flex items-center justify-between shrink-0 px-3 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${
               activeTab === item.id
@@ -213,9 +215,20 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ session, navigat
         <div className="max-w-7xl mx-auto space-y-6">
           {/* Top Header */}
           <div className="flex items-center justify-between pb-4 border-b border-[#C5A15A]/20 gap-4">
-            <div>
-              <div className="text-xs font-semibold text-[#C5A15A] uppercase tracking-wider">Platform Super Admin Console</div>
-              <h1 className="text-2xl font-extrabold text-white">Samley Retail Multi-Tenant Management</h1>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setMobileMenuOpen((prev) => !prev)}
+                className="md:hidden p-2 rounded-lg border border-[#C5A15A]/30 text-[#C5A15A]"
+                aria-label="Toggle menu"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              </button>
+              <div>
+                <div className="text-xs font-semibold text-[#C5A15A] uppercase tracking-wider">Platform Super Admin Console</div>
+                <h1 className="text-2xl font-extrabold text-white">Samley Retail Multi-Tenant Management</h1>
+              </div>
             </div>
             <div className="text-xs text-[#F7F5EE]/70 font-mono">{session.user.email}</div>
           </div>
