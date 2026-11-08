@@ -22,7 +22,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   return (
     <header className="sticky top-0 z-50 bg-[#F7F5EE]/95 backdrop-blur-md border-b border-[#123B2A]/10">
       {/* Domain Indicator & Switcher Strip */}
-      <div className="bg-[#123B2A] text-[#F7F5EE] text-xs py-1.5 px-4 sm:px-8 flex items-center justify-between border-b border-[#C5A15A]/20">
+      <div className="bg-[#123B2A] text-[#F7F5EE] text-xs py-1.5 px-4 sm:px-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-[#C5A15A]/20">
         <div className="flex items-center gap-2">
           <span className="font-semibold text-[#C5A15A]">Samley Retail</span>
           <span className="opacity-60">·</span>

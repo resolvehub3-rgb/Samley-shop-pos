@@ -26,4 +26,13 @@ body {
   background-color: #F7F5EE;
   color: #123B2A;
   min-height: 100vh;
+  overflow-x: hidden;
+}
+
+img,
+video,
+canvas,
+svg {
+  max-width: 100%;
+  height: auto;
 }

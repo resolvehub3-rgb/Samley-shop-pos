@@ -503,7 +503,7 @@ export const ProductManagement: React.FC<ProductManagementProps> = ({ session, n
                     </div>
                   )}
 
-                  <div className="grid grid-cols-3 gap-2 bg-[#F7F5EE]/50 p-2.5 rounded-lg border border-[#123B2A]/10">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 bg-[#F7F5EE]/50 p-2.5 rounded-lg border border-[#123B2A]/10">
                     <input
                       type="text"
                       value={customUnitName}

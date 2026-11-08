@@ -350,7 +350,7 @@ export const InventoryManagement: React.FC<InventoryManagementProps> = ({ sessio
                   </select>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <label className="block text-xs font-semibold text-[#123B2A] mb-1">
                       Packaging Conversion

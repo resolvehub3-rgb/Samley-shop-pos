@@ -160,9 +160,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ session, navigat
   };
 
   return (
-    <div className="bg-[#123B2A] text-[#F7F5EE] min-h-screen flex">
+    <div className="bg-[#123B2A] text-[#F7F5EE] min-h-screen flex flex-col md:flex-row">
       {/* Sidebar Menu */}
-      <aside className="w-64 shrink-0 border-r border-[#C5A15A]/20 py-6 px-4 flex flex-col gap-2 sticky top-16 h-[calc(100vh-4rem)] overflow-y-auto">
+      <aside className="w-full md:w-64 shrink-0 border-b md:border-b-0 md:border-r border-[#C5A15A]/20 py-4 md:py-6 px-4 flex md:flex-col gap-2 md:sticky md:top-16 md:h-[calc(100vh-4rem)] overflow-x-auto md:overflow-y-auto">
         <div className="flex items-center gap-3 mb-6">
           <div className="w-10 h-10 rounded-lg bg-[#C5A15A] text-[#123B2A] flex items-center justify-center font-bold">
             <Shield className="w-6 h-6" />
@@ -186,7 +186,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ session, navigat
               setActiveTab(item.id as any);
               navigate(item.route);
             }}
-            className={`flex items-center justify-between w-full px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+            className={`flex items-center justify-between shrink-0 px-3 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${
               activeTab === item.id
                 ? 'bg-[#0c271c] text-[#C5A15A] border-l-2 border-[#C5A15A]'
                 : 'text-[#F7F5EE]/70 hover:text-white hover:bg-[#0c271c]/50'
