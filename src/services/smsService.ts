@@ -38,9 +38,9 @@ export async function sendSmsNotification(params: SendSmsParams): Promise<SmsRes
 
   // SasuSync server configuration check
   const apiKey = (typeof process !== 'undefined' && process.env?.SASUSYNC_API_KEY) || '';
-  const configuredSenderId = (typeof process !== 'undefined' && process.env?.SASUSYNC_SENDER_ID) || 'SamleyBook';
+  const configuredSenderId = (typeof process !== 'undefined' && process.env?.SASUSYNC_SENDER_ID) || 'SamleyOS';
   const senderId = configuredSenderId.length > 11 || configuredSenderId === 'Samley Retail'
-    ? 'SamleyBook'
+    ? 'SamleyOS'
     : configuredSenderId;
   const baseUrl = (typeof process !== 'undefined' && process.env?.SASUSYNC_BASE_URL) || 'https://sms.sasusync.com';
 

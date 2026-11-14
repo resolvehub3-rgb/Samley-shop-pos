@@ -223,9 +223,9 @@ app.post('/api/sms/send-otp', async (req, res) => {
   otpStore.set(phoneNumber.trim(), { code, expiresAt: Date.now() + 10 * 60 * 1000 });
 
   const apiKey = process.env.SASUSYNC_API_KEY;
-  const configuredSenderId = process.env.SASUSYNC_SENDER_ID || 'SamleyBook';
+  const configuredSenderId = process.env.SASUSYNC_SENDER_ID || 'SamleyOS';
   const senderId = configuredSenderId.length > 11 || configuredSenderId === 'Samley Retail'
-    ? 'SamleyBook'
+    ? 'SamleyOS'
     : configuredSenderId;
   const baseUrl = process.env.SASUSYNC_BASE_URL || 'https://sms.sasusync.com';
 
