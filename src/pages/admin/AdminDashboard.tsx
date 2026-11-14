@@ -16,13 +16,9 @@ import {
 } from 'lucide-react';
 import {
   ActiveSession,
-  getPlatformOverview,
-  getShopApplications,
+  getAdminData,
   reviewShopApplication,
-  getAllShops,
   updateShopStatus,
-  getSmsLogs,
-  getAuditLogs,
 } from '../../services/shopService';
 import {
   ShopApplication,
@@ -83,18 +79,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ session, navigat
 
   const loadAdminData = async () => {
     setLoading(true);
-    const [ov, apps, shps, sms, audit] = await Promise.all([
-      getPlatformOverview(),
-      getShopApplications(),
-      getAllShops(),
-      getSmsLogs(),
-      getAuditLogs(),
-    ]);
-    setOverview(ov);
-    setApplications(apps);
-    setShops(shps);
-    setSmsLogs(sms);
-    setAuditLogs(audit);
+    const data = await getAdminData();
+    setOverview(data.overview);
+    setApplications(data.applications);
+    setShops(data.shops);
+    setSmsLogs(data.smsLogs);
+    setAuditLogs(data.auditLogs);
     setLoading(false);
   };
 

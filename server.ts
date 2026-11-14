@@ -459,6 +459,159 @@ app.post('/api/sms/send', async (req, res) => {
   }
 });
 
+// Admin dashboard data (bypasses RLS using the service role key)
+app.get('/api/admin-data', async (req, res) => {
+  const supabaseUrl =
+    process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || '';
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+  if (!supabaseUrl || !serviceRoleKey) {
+    return res.status(503).json({ success: false, error: 'SUPABASE_SERVICE_ROLE_KEY is not configured on the server.' });
+  }
+
+  try {
+    const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey);
+    const [appsRes, shopsRes, subsRes, smsRes, auditRes] = await Promise.all([
+      supabaseAdmin.from('shop_applications').select('*').order('created_at', { ascending: false }),
+      supabaseAdmin.from('shops').select('*').order('created_at', { ascending: false }),
+      supabaseAdmin.from('subscriptions').select('*'),
+      supabaseAdmin.from('sms_logs').select('*').order('sent_at', { ascending: false }),
+      supabaseAdmin.from('audit_logs').select('*').order('created_at', { ascending: false }),
+    ]);
+
+    const shops = (shopsRes.data || []) as any[];
+    const apps = (appsRes.data || []) as any[];
+    const subs = (subsRes.data || []) as any[];
+
+    const nowMs = Date.now();
+    let activeSubs = 0;
+    let expiredSubs = 0;
+    shops.forEach((shop: any) => {
+      if (shop.subscription_status === 'active' && shop.subscription_ends_at) {
+        if (new Date(shop.subscription_ends_at).getTime() >= nowMs) activeSubs++;
+        else expiredSubs++;
+      }
+    });
+    const totalRevenue = subs.reduce((acc: number, sub: any) => acc + (Number(sub.amount) || 0), 0);
+
+    const overview = {
+      totalShops: shops.length,
+      pendingApplications: apps.filter((a: any) => a.status === 'pending').length,
+      approvedShops: shops.filter((s: any) => s.status === 'approved').length,
+      suspendedShops: shops.filter((s: any) => s.status === 'suspended').length,
+      activeSubscriptions: activeSubs,
+      expiredSubscriptions: expiredSubs,
+      totalPlatformRevenueGhs: totalRevenue,
+    };
+
+    return res.json({
+      success: true,
+      applications: apps,
+      shops,
+      overview,
+      smsLogs: smsRes.data || [],
+      auditLogs: auditRes.data || [],
+    });
+  } catch (err) {
+    return res.status(500).json({ success: false, error: String(err) });
+  }
+});
+
+// Review a shop application (approve/reject) using the service role key
+app.post('/api/review-application', async (req, res) => {
+  const { applicationId, decision, rejectionReason, reviewerId } = req.body || {};
+  if (!applicationId || !decision) {
+    return res.status(400).json({ success: false, error: 'applicationId and decision are required.' });
+  }
+
+  const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || '';
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+  if (!supabaseUrl || !serviceRoleKey) {
+    return res.status(503).json({ success: false, error: 'SUPABASE_SERVICE_ROLE_KEY is not configured on the server.' });
+  }
+
+  try {
+    const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey);
+
+    const { data: appRecord, error: updateErr } = await supabaseAdmin
+      .from('shop_applications')
+      .update({
+        status: decision,
+        rejection_reason: rejectionReason || null,
+        reviewed_at: new Date().toISOString(),
+        reviewed_by: reviewerId || null,
+      })
+      .eq('id', applicationId)
+      .select()
+      .single();
+
+    if (updateErr || !appRecord) {
+      return res.status(400).json({ success: false, error: updateErr?.message || 'Application not found' });
+    }
+
+    let shop = null;
+    if (decision === 'approved') {
+      const { data: newShop, error: shopErr } = await supabaseAdmin
+        .from('shops')
+        .insert([
+          {
+            name: appRecord.shop_name,
+            business_phone: appRecord.phone_number,
+            location: appRecord.location,
+            status: 'approved',
+            approved_at: new Date().toISOString(),
+            approved_by: reviewerId || null,
+            trial_started_at: null,
+            trial_ends_at: null,
+            subscription_status: 'trialing',
+            subscription_ends_at: null,
+          },
+        ])
+        .select()
+        .single();
+
+      if (shopErr) {
+        return res.status(400).json({ success: false, error: shopErr.message });
+      }
+      shop = newShop;
+    }
+
+    return res.json({ success: true, application: appRecord, shop });
+  } catch (err) {
+    return res.status(500).json({ success: false, error: String(err) });
+  }
+});
+
+// Update shop status using the service role key
+app.post('/api/update-shop-status', async (req, res) => {
+  const { shopId, newStatus } = req.body || {};
+  if (!shopId || !newStatus) {
+    return res.status(400).json({ success: false, error: 'shopId and newStatus are required.' });
+  }
+
+  const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || '';
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+  if (!supabaseUrl || !serviceRoleKey) {
+    return res.status(503).json({ success: false, error: 'SUPABASE_SERVICE_ROLE_KEY is not configured on the server.' });
+  }
+
+  try {
+    const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey);
+    const { error } = await supabaseAdmin
+      .from('shops')
+      .update({
+        status: newStatus,
+        subscription_status: newStatus === 'suspended' ? 'suspended' : 'active',
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', shopId);
+
+    if (error) return res.status(400).json({ success: false, error: error.message });
+    return res.json({ success: true });
+  } catch (err) {
+    return res.status(500).json({ success: false, error: String(err) });
+  }
+});
+
 async function startServer() {
   const isProd = process.env.NODE_ENV === 'production';
 

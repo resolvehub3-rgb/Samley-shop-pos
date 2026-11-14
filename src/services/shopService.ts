@@ -129,13 +129,68 @@ export async function submitRegistrationApplication(data: {
   return { success: true, application };
 }
 
+export async function getAdminData(): Promise<{
+  overview: any;
+  applications: ShopApplication[];
+  shops: Shop[];
+  smsLogs: SmsLog[];
+  auditLogs: AuditLog[];
+}> {
+  if (isSupabaseConfigured()) {
+    try {
+      const response = await fetch('/api/admin-data');
+      const data = await response.json().catch(() => ({}));
+      if (response.ok && data?.success) {
+        return {
+          overview: data.overview,
+          applications: (data.applications || []) as ShopApplication[],
+          shops: (data.shops || []) as Shop[],
+          smsLogs: (data.smsLogs || []) as SmsLog[],
+          auditLogs: (data.auditLogs || []) as AuditLog[],
+        };
+      }
+    } catch (err) {
+      console.warn('Admin data fetch failed:', err);
+    }
+  }
+
+  // Local fallback
+  const apps = getLocalArray<ShopApplication>('samly_shop_applications');
+  const shops = getLocalArray<Shop>('samly_shops');
+  const sms = getLocalArray<SmsLog>('samly_sms_logs');
+  const audit = getLocalArray<AuditLog>('samly_audit_logs');
+  const subs = getLocalArray<any>('samly_subscriptions');
+  const nowMs = Date.now();
+  let activeSubs = 0;
+  let expiredSubs = 0;
+  shops.forEach((shop) => {
+    if (shop.subscription_status === 'active' && shop.subscription_ends_at) {
+      if (new Date(shop.subscription_ends_at).getTime() >= nowMs) activeSubs++;
+      else expiredSubs++;
+    }
+  });
+  const totalRevenue = subs.reduce((acc: number, sub: any) => acc + (Number(sub.amount) || 0), 0);
+  return {
+    overview: {
+      totalShops: shops.length,
+      pendingApplications: apps.filter((a) => a.status === 'pending').length,
+      approvedShops: shops.filter((s) => s.status === 'approved').length,
+      suspendedShops: shops.filter((s) => s.status === 'suspended').length,
+      activeSubscriptions: activeSubs,
+      expiredSubscriptions: expiredSubs,
+      totalPlatformRevenueGhs: totalRevenue,
+    },
+    applications: apps,
+    shops,
+    smsLogs: sms,
+    auditLogs: audit,
+  };
+}
+
 export async function getShopApplications(): Promise<ShopApplication[]> {
-  if (isSupabaseConfigured() && supabase) {
-    const { data, error } = await supabase
-      .from('shop_applications')
-      .select('*')
-      .order('created_at', { ascending: false });
-    if (!error && data) return data as ShopApplication[];
+  if (isSupabaseConfigured()) {
+    const data = await getAdminData();
+    return data.applications;
   }
   return getLocalArray<ShopApplication>('samly_shop_applications');
 }
@@ -147,6 +202,25 @@ export async function reviewShopApplication(
   reviewerId?: string
 ): Promise<{ success: boolean; shop?: Shop; error?: string }> {
   let appRecord: ShopApplication | undefined;
+
+  if (isSupabaseConfigured()) {
+    try {
+      const response = await fetch('/api/review-application', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ applicationId, decision, rejectionReason, reviewerId }),
+      });
+      const data = await response.json().catch(() => ({}));
+      if (response.ok && data?.success) {
+        return { success: true, shop: (data.shop || undefined) as Shop | undefined };
+      }
+      if (data?.error) {
+        return { success: false, error: data.error };
+      }
+    } catch (err) {
+      // Fall through to direct client handling below.
+    }
+  }
 
   if (isSupabaseConfigured() && supabase) {
     const { data, error } = await supabase
@@ -165,7 +239,6 @@ export async function reviewShopApplication(
     appRecord = data as ShopApplication;
 
     if (decision === 'approved') {
-      // Create new shop record
       const { data: newShop, error: shopErr } = await supabase
         .from('shops')
         .insert([
@@ -176,7 +249,7 @@ export async function reviewShopApplication(
             status: 'approved',
             approved_at: new Date().toISOString(),
             approved_by: reviewerId || null,
-            trial_started_at: null, // Starts only on first dashboard access!
+            trial_started_at: null,
             trial_ends_at: null,
             subscription_status: 'trialing',
             subscription_ends_at: null,
@@ -862,22 +935,14 @@ export async function getPlatformOverview(): Promise<{
   expiredSubscriptions: number;
   totalPlatformRevenueGhs: number;
 }> {
-  let shops: Shop[] = [];
-  let apps: ShopApplication[] = [];
-  let subs: SubscriptionRecord[] = [];
-
-  if (isSupabaseConfigured() && supabase) {
-    const { data: s } = await supabase.from('shops').select('*');
-    if (s) shops = s as Shop[];
-    const { data: a } = await supabase.from('shop_applications').select('*');
-    if (a) apps = a as ShopApplication[];
-    const { data: su } = await supabase.from('subscriptions').select('*');
-    if (su) subs = su as SubscriptionRecord[];
-  } else {
-    shops = getLocalArray<Shop>('samly_shops');
-    apps = getLocalArray<ShopApplication>('samly_shop_applications');
-    subs = getLocalArray<SubscriptionRecord>('samly_subscriptions');
+  if (isSupabaseConfigured()) {
+    const data = await getAdminData();
+    return data.overview;
   }
+
+  const shops = getLocalArray<Shop>('samly_shops');
+  const apps = getLocalArray<ShopApplication>('samly_shop_applications');
+  const subs = getLocalArray<SubscriptionRecord>('samly_subscriptions');
 
   const nowMs = Date.now();
   let activeSubs = 0;
@@ -907,9 +972,9 @@ export async function getPlatformOverview(): Promise<{
 }
 
 export async function getAllShops(): Promise<Shop[]> {
-  if (isSupabaseConfigured() && supabase) {
-    const { data } = await supabase.from('shops').select('*').order('created_at', { ascending: false });
-    if (data) return data as Shop[];
+  if (isSupabaseConfigured()) {
+    const data = await getAdminData();
+    return data.shops;
   }
   return getLocalArray<Shop>('samly_shops');
 }
@@ -918,6 +983,20 @@ export async function updateShopStatus(
   shopId: string,
   newStatus: 'approved' | 'suspended'
 ): Promise<boolean> {
+  if (isSupabaseConfigured()) {
+    try {
+      const response = await fetch('/api/update-shop-status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ shopId, newStatus }),
+      });
+      const data = await response.json().catch(() => ({}));
+      if (response.ok && data?.success) return true;
+    } catch (err) {
+      // Fall through to direct client update below.
+    }
+  }
+
   if (isSupabaseConfigured() && supabase) {
     const { error } = await supabase
       .from('shops')
@@ -942,23 +1021,17 @@ export async function updateShopStatus(
 }
 
 export async function getSmsLogs(): Promise<SmsLog[]> {
-  if (isSupabaseConfigured() && supabase) {
-    const { data } = await supabase
-      .from('sms_logs')
-      .select('*')
-      .order('sent_at', { ascending: false });
-    if (data) return data as SmsLog[];
+  if (isSupabaseConfigured()) {
+    const data = await getAdminData();
+    return data.smsLogs;
   }
   return getLocalArray<SmsLog>('samly_sms_logs');
 }
 
 export async function getAuditLogs(): Promise<AuditLog[]> {
-  if (isSupabaseConfigured() && supabase) {
-    const { data } = await supabase
-      .from('audit_logs')
-      .select('*')
-      .order('created_at', { ascending: false });
-    if (data) return data as AuditLog[];
+  if (isSupabaseConfigured()) {
+    const data = await getAdminData();
+    return data.auditLogs;
   }
   return getLocalArray<AuditLog>('samly_audit_logs');
 }
