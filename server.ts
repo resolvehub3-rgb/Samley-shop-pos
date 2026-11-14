@@ -402,6 +402,63 @@ app.post('/api/register-application', async (req, res) => {
   }
 });
 
+// Send a transactional SMS through SasuSync using server-side credentials.
+app.post('/api/sms/send', async (req, res) => {
+  const { recipientPhone, messageText } = req.body || {};
+  if (!recipientPhone || typeof recipientPhone !== 'string' || recipientPhone.trim().length === 0) {
+    return res.status(400).json({ success: false, error: 'Recipient phone number is required.' });
+  }
+  if (!messageText || typeof messageText !== 'string' || messageText.trim().length === 0) {
+    return res.status(400).json({ success: false, error: 'Message text is required.' });
+  }
+
+  const apiKey = process.env.SASUSYNC_API_KEY;
+  const configuredSenderId = process.env.SASUSYNC_SENDER_ID || 'SamleyOS';
+  const senderId = configuredSenderId.length > 11 || configuredSenderId === 'Samley Retail'
+    ? 'SamleyOS'
+    : configuredSenderId;
+  const baseUrl = process.env.SASUSYNC_BASE_URL || 'https://sms.sasusync.com';
+
+  const normalizedBase = baseUrl.replace(/\/+$/, '');
+  const sendUrl = normalizedBase.endsWith('/api/v1/send')
+    ? normalizedBase
+    : normalizedBase.endsWith('/api/v1')
+      ? `${normalizedBase}/send`
+      : `${normalizedBase}/api/v1/send`;
+
+  const recipient = recipientPhone.trim().startsWith('0')
+    ? `233${recipientPhone.trim().slice(1)}`
+    : recipientPhone.trim().replace(/^\\+/, '');
+
+  if (!apiKey) {
+    return res.status(503).json({ success: false, error: 'SASUSYNC_API_KEY is not configured on the server.' });
+  }
+
+  try {
+    const response = await fetch(sendUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-API-Key': apiKey,
+      },
+      body: JSON.stringify({
+        sender: senderId,
+        recipients: [recipient],
+        message: messageText.trim(),
+      }),
+    });
+    const data = await response.json().catch(() => ({}));
+    if (response.ok && data?.success !== false) {
+      return res.json({ success: true, status: 'delivered' });
+    }
+    console.error('SasuSync SMS dispatch failed:', response.status, data);
+    return res.status(502).json({ success: false, error: 'Failed to send SMS.', status: 'failed' });
+  } catch (err) {
+    console.error('SasuSync SMS dispatch error:', err);
+    return res.status(502).json({ success: false, error: 'Failed to send SMS.', status: 'delivery_error' });
+  }
+});
+
 async function startServer() {
   const isProd = process.env.NODE_ENV === 'production';
 

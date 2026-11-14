@@ -166,7 +166,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ navigate, setDomain 
 
     // B. Alert to Super Admin
     await sendSmsNotification({
-      recipientPhone: '0240000000', // Super Admin alert line
+      recipientPhone: '0594345424', // Super Admin alert line
       messageType: 'admin_new_reg',
       messageText: SmsTemplates.adminNewRegistrationAlert(shopName, fullName),
     });

@@ -37,55 +37,32 @@ export async function sendSmsNotification(params: SendSmsParams): Promise<SmsRes
   const { shopId, recipientPhone, messageType, messageText } = params;
 
   // SasuSync server configuration check
-  const apiKey = (typeof process !== 'undefined' && process.env?.SASUSYNC_API_KEY) || '';
-  const configuredSenderId = (typeof process !== 'undefined' && process.env?.SASUSYNC_SENDER_ID) || 'SamleyOS';
-  const senderId = configuredSenderId.length > 11 || configuredSenderId === 'Samley Retail'
-    ? 'SamleyOS'
-    : configuredSenderId;
-  const baseUrl = (typeof process !== 'undefined' && process.env?.SASUSYNC_BASE_URL) || 'https://sms.sasusync.com';
 
   let providerStatus = 'queued';
   let providerReference = `SMS-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
 
-  if (!apiKey) {
-    providerStatus = 'logged_missing_credentials';
-  } else {
-    // Normalise the configured base URL so both full and partial values work.
-    const normalizedBase = baseUrl.replace(/\/+$/, '');
-    const sendUrl = normalizedBase.endsWith('/api/v1/send')
-      ? normalizedBase
-      : normalizedBase.endsWith('/api/v1')
-        ? `${normalizedBase}/send`
-        : `${normalizedBase}/api/v1/send`;
-
-    const recipient = recipientPhone.trim().startsWith('0')
-      ? `233${recipientPhone.trim().slice(1)}`
-      : recipientPhone.trim().replace(/^\\+/, '');
-
-    // When live credentials exist, dispatch to SasuSync endpoint
-    try {
-      const response = await fetch(sendUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-API-Key': apiKey,
-        },
-        body: JSON.stringify({
-          sender: senderId,
-          recipients: [recipient],
-          message: messageText,
-        }),
-      });
-      const data = await response.json().catch(() => ({}));
-      if (response.ok && data?.success !== false) {
-        providerStatus = 'delivered';
-      } else {
-        providerStatus = 'failed';
-      }
-    } catch (err: unknown) {
-      providerStatus = 'delivery_error';
-      console.warn('SasuSync delivery dispatch note:', err);
+  // Dispatch through the server-side endpoint so the SasuSync API key and
+  // approved sender ID stay on the server.
+  try {
+    const response = await fetch('/api/sms/send', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        recipientPhone,
+        messageText,
+      }),
+    });
+    const data = await response.json().catch(() => ({}));
+    if (response.ok && data?.success !== false) {
+      providerStatus = 'delivered';
+    } else {
+      providerStatus = 'failed';
     }
+  } catch (err: unknown) {
+    providerStatus = 'delivery_error';
+    console.warn('SasuSync delivery dispatch note:', err);
   }
 
   // Record into persistent SMS log table in Supabase if connected
@@ -111,7 +88,7 @@ export async function sendSmsNotification(params: SendSmsParams): Promise<SmsRes
     success: providerStatus === 'delivered' || providerStatus === 'logged_missing_credentials',
     status: providerStatus as SmsResult['status'],
     reference: providerReference,
-    error: !apiKey ? 'SASUSYNC_API_KEY is not configured in server environment.' : undefined,
+    error: undefined,
   };
 }
 
