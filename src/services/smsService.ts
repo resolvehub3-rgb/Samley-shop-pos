@@ -38,8 +38,11 @@ export async function sendSmsNotification(params: SendSmsParams): Promise<SmsRes
 
   // SasuSync server configuration check
   const apiKey = (typeof process !== 'undefined' && process.env?.SASUSYNC_API_KEY) || '';
-  const senderId = (typeof process !== 'undefined' && process.env?.SASUSYNC_SENDER_ID) || 'Samley Retail';
-  const baseUrl = (typeof process !== 'undefined' && process.env?.SASUSYNC_BASE_URL) || 'https://api.sasusync.com/v1';
+  const configuredSenderId = (typeof process !== 'undefined' && process.env?.SASUSYNC_SENDER_ID) || 'SamleyBook';
+  const senderId = configuredSenderId.length > 11 || configuredSenderId === 'Samley Retail'
+    ? 'SamleyBook'
+    : configuredSenderId;
+  const baseUrl = (typeof process !== 'undefined' && process.env?.SASUSYNC_BASE_URL) || 'https://sms.sasusync.com';
 
   let providerStatus = 'queued';
   let providerReference = `SMS-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
@@ -47,23 +50,34 @@ export async function sendSmsNotification(params: SendSmsParams): Promise<SmsRes
   if (!apiKey) {
     providerStatus = 'logged_missing_credentials';
   } else {
+    // Normalise the configured base URL so both full and partial values work.
+    const normalizedBase = baseUrl.replace(/\/+$/, '');
+    const sendUrl = normalizedBase.endsWith('/api/v1/send')
+      ? normalizedBase
+      : normalizedBase.endsWith('/api/v1')
+        ? `${normalizedBase}/send`
+        : `${normalizedBase}/api/v1/send`;
+
+    const recipient = recipientPhone.trim().startsWith('0')
+      ? `233${recipientPhone.trim().slice(1)}`
+      : recipientPhone.trim().replace(/^\\+/, '');
+
     // When live credentials exist, dispatch to SasuSync endpoint
     try {
-      const response = await fetch(`${baseUrl}/sms/send`, {
+      const response = await fetch(sendUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`,
+          'X-API-Key': apiKey,
         },
         body: JSON.stringify({
-          sender_id: senderId,
-          recipient: recipientPhone,
+          sender: senderId,
+          recipients: [recipient],
           message: messageText,
         }),
       });
-      const data = await response.json();
-      if (response.ok && data?.reference) {
-        providerReference = data.reference;
+      const data = await response.json().catch(() => ({}));
+      if (response.ok && data?.success !== false) {
         providerStatus = 'delivered';
       } else {
         providerStatus = 'failed';

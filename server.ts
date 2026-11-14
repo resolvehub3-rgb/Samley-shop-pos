@@ -223,33 +223,62 @@ app.post('/api/sms/send-otp', async (req, res) => {
   otpStore.set(phoneNumber.trim(), { code, expiresAt: Date.now() + 10 * 60 * 1000 });
 
   const apiKey = process.env.SASUSYNC_API_KEY;
-  const senderId = process.env.SASUSYNC_SENDER_ID || 'Samley Retail';
-  const baseUrl = process.env.SASUSYNC_BASE_URL || 'https://api.sasusync.com/v1';
+  const configuredSenderId = process.env.SASUSYNC_SENDER_ID || 'SamleyBook';
+  const senderId = configuredSenderId.length > 11 || configuredSenderId === 'Samley Retail'
+    ? 'SamleyBook'
+    : configuredSenderId;
+  const baseUrl = process.env.SASUSYNC_BASE_URL || 'https://sms.sasusync.com';
+
+  // SasuSync expects Ghana numbers in international format (233...) and the
+  // X-API-Key header. The configured base URL may already include the full
+  // send path, so normalise it before appending.
+  const normalizedBase = baseUrl.replace(/\/+$/, '');
+  const sendUrl = normalizedBase.endsWith('/api/v1/send')
+    ? normalizedBase
+    : normalizedBase.endsWith('/api/v1')
+      ? `${normalizedBase}/send`
+      : `${normalizedBase}/api/v1/send`;
+
+  const recipient = phoneNumber.trim().startsWith('0')
+    ? `233${phoneNumber.trim().slice(1)}`
+    : phoneNumber.trim().replace(/^\\+/, '');
 
   let providerStatus = apiKey ? 'queued' : 'simulated_missing_credentials';
 
   if (apiKey) {
     try {
-      const response = await fetch(`${baseUrl}/sms/send`, {
+      const response = await fetch(sendUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`,
+          'X-API-Key': apiKey,
         },
         body: JSON.stringify({
-          sender_id: senderId,
-          recipient: phoneNumber.trim(),
+          sender: senderId,
+          recipients: [recipient],
           message: `Your Samley Retail verification code is ${code}. Valid for 10 minutes. Do not share this code.`,
         }),
       });
-      if (response.ok) {
+      const data = await response.json().catch(() => ({}));
+      if (response.ok && data?.success !== false) {
         providerStatus = 'delivered';
       } else {
         providerStatus = 'failed';
+        console.error('SasuSync OTP dispatch failed:', response.status, data);
+        return res.status(502).json({
+          success: false,
+          error: 'Failed to send verification code. Please try again.',
+          status: providerStatus,
+        });
       }
     } catch (err) {
       console.error('SasuSync OTP dispatch error:', err);
       providerStatus = 'delivery_error';
+      return res.status(502).json({
+        success: false,
+        error: 'Failed to send verification code. Please try again.',
+        status: providerStatus,
+      });
     }
   }
 
