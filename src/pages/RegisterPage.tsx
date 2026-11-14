@@ -35,6 +35,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ navigate, setDomain 
 
   // Session 3: OTP Verification
   const [enteredOtp, setEnteredOtp] = useState('');
+  const [otpToken, setOtpToken] = useState<string>('');
   const [resendCooldown, setResendCooldown] = useState<number>(0);
 
   const [loading, setLoading] = useState(false);
@@ -93,6 +94,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ navigate, setDomain 
         setError(data.error || 'Failed to send verification code.');
         return;
       }
+      if (data.token) setOtpToken(data.token);
     } catch (err) {
       setLoading(false);
       setError('Failed to send verification code. Please try again.');
@@ -113,6 +115,10 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ navigate, setDomain 
       setError('Please enter the verification code sent to your phone.');
       return;
     }
+    if (!otpToken) {
+      setError('No verification code was requested for this number.');
+      return;
+    }
 
     setLoading(true);
 
@@ -121,7 +127,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ navigate, setDomain 
       const verifyResponse = await fetch('/api/sms/verify-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phoneNumber, otp: enteredOtp.trim() }),
+        body: JSON.stringify({ phoneNumber, otp: enteredOtp.trim(), token: otpToken }),
       });
       const verifyData = await verifyResponse.json();
       if (!verifyResponse.ok || !verifyData.success) {
@@ -185,6 +191,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ navigate, setDomain 
         setError(data.error || 'Failed to resend verification code.');
         return;
       }
+      if (data.token) setOtpToken(data.token);
     } catch (err) {
       setLoading(false);
       setError('Failed to resend verification code. Please try again.');

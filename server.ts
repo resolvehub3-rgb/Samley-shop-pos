@@ -1,4 +1,5 @@
 import express from 'express';
+import crypto from 'crypto';
 import { GoogleGenAI } from '@google/genai';
 import path from 'path';
 import dotenv from 'dotenv';
@@ -7,6 +8,47 @@ dotenv.config();
 
 const app = express();
 const port = 3000;
+
+// Stateless OTP verification: the verification code is bound to a signed token
+// so it works across separate Vercel serverless function instances.
+const OTP_SECRET =
+  process.env.OTP_SECRET ||
+  process.env.SASUSYNC_WEBHOOK_SECRET ||
+  'samley-otp-fallback-secret';
+
+function createOtpToken(phone: string, code: string, ttlMs: number): string {
+  const exp = Date.now() + ttlMs;
+  const codeHash = crypto.createHash('sha256').update(`${code}${OTP_SECRET}`).digest('hex');
+  const payload = Buffer.from(JSON.stringify({ phone: phone.trim(), codeHash, exp })).toString('base64url');
+  const signature = crypto.createHmac('sha256', OTP_SECRET).update(payload).digest('base64url');
+  return `${payload}.${signature}`;
+}
+
+function verifyOtpToken(token: string, phone: string, otp: string): boolean {
+  const parts = (token || '').split('.');
+  if (parts.length !== 2) return false;
+  const [payload, signature] = parts;
+  const expectedSignature = crypto.createHmac('sha256', OTP_SECRET).update(payload).digest('base64url');
+  try {
+    if (!crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expectedSignature))) return false;
+  } catch {
+    return false;
+  }
+  let data: { phone?: string; codeHash?: string; exp?: number };
+  try {
+    data = JSON.parse(Buffer.from(payload, 'base64url').toString('utf8'));
+  } catch {
+    return false;
+  }
+  if (!data?.phone || data.phone !== phone.trim()) return false;
+  if (!data?.exp || Date.now() > data.exp) return false;
+  const enteredHash = crypto.createHash('sha256').update(`${otp.trim()}${OTP_SECRET}`).digest('hex');
+  try {
+    return crypto.timingSafeEqual(Buffer.from(enteredHash), Buffer.from(data.codeHash || ''));
+  } catch {
+    return false;
+  }
+}
 
 app.use(express.json());
 
@@ -220,7 +262,7 @@ app.post('/api/sms/send-otp', async (req, res) => {
   }
 
   const code = Math.floor(100000 + Math.random() * 900000).toString();
-  otpStore.set(phoneNumber.trim(), { code, expiresAt: Date.now() + 10 * 60 * 1000 });
+  const otpToken = createOtpToken(phoneNumber.trim(), code, 10 * 60 * 1000);
 
   const apiKey = process.env.SASUSYNC_API_KEY;
   const configuredSenderId = process.env.SASUSYNC_SENDER_ID || 'SamleyOS';
@@ -285,31 +327,25 @@ app.post('/api/sms/send-otp', async (req, res) => {
   return res.json({
     success: true,
     status: providerStatus,
+    token: otpToken,
   });
 });
 
 // Verify OTP (server-side)
 app.post('/api/sms/verify-otp', (req, res) => {
-  const { phoneNumber, otp } = req.body || {};
+  const { phoneNumber, otp, token } = req.body || {};
   if (!phoneNumber || !otp) {
     return res.status(400).json({ success: false, error: 'Phone number and OTP are required.' });
   }
 
-  const record = otpStore.get(String(phoneNumber).trim());
-  if (!record) {
+  if (!token || typeof token !== 'string') {
     return res.status(400).json({ success: false, error: 'No verification code was requested for this number.' });
   }
 
-  if (Date.now() > record.expiresAt) {
-    otpStore.delete(String(phoneNumber).trim());
-    return res.status(400).json({ success: false, error: 'Verification code has expired. Please request a new one.' });
+  if (!verifyOtpToken(token, String(phoneNumber).trim(), String(otp).trim())) {
+    return res.status(400).json({ success: false, error: 'Incorrect or expired verification code.' });
   }
 
-  if (record.code !== String(otp).trim()) {
-    return res.status(400).json({ success: false, error: 'Incorrect verification code.' });
-  }
-
-  otpStore.delete(String(phoneNumber).trim());
   return res.json({ success: true });
 });
 
