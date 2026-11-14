@@ -1,5 +1,6 @@
 import express from 'express';
 import crypto from 'crypto';
+import { createClient } from '@supabase/supabase-js';
 import { GoogleGenAI } from '@google/genai';
 import path from 'path';
 import dotenv from 'dotenv';
@@ -359,6 +360,46 @@ app.post('/api/sms/verify-otp', (req, res) => {
 
   res.setHeader('Set-Cookie', 'otp_token=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0');
   return res.json({ success: true });
+});
+
+// Register a shop application using the Supabase service role key so that
+// Row Level Security on shop_applications cannot block public registration.
+app.post('/api/register-application', async (req, res) => {
+  const { application } = req.body || {};
+  if (!application || typeof application !== 'object') {
+    return res.status(400).json({ success: false, error: 'Application data is required.' });
+  }
+
+  const supabaseUrl =
+    process.env.VITE_SUPABASE_URL ||
+    process.env.SUPABASE_URL ||
+    '';
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+
+  if (!supabaseUrl || !serviceRoleKey) {
+    return res.status(503).json({
+      success: false,
+      error:
+        'SUPABASE_SERVICE_ROLE_KEY is not configured on the server. Add it to your environment or run the RLS grant SQL in Supabase.',
+    });
+  }
+
+  try {
+    const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey);
+    const { data, error } = await supabaseAdmin
+      .from('shop_applications')
+      .insert([application])
+      .select()
+      .single();
+
+    if (error) {
+      return res.status(400).json({ success: false, error: error.message });
+    }
+
+    return res.json({ success: true, application: data });
+  } catch (err) {
+    return res.status(500).json({ success: false, error: String(err) });
+  }
 });
 
 async function startServer() {

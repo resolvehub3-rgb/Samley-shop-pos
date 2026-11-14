@@ -91,6 +91,25 @@ export async function submitRegistrationApplication(data: {
   };
 
   if (isSupabaseConfigured() && supabase) {
+    // Prefer the server-side endpoint, which uses the Supabase service role key
+    // and bypasses Row Level Security for public registration inserts.
+    try {
+      const response = await fetch('/api/register-application', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ application }),
+      });
+      const data = await response.json().catch(() => ({}));
+      if (response.ok && data?.success) {
+        return { success: true, application: (data.application || application) as ShopApplication };
+      }
+      if (data?.error) {
+        return { success: false, error: data.error };
+      }
+    } catch (err) {
+      // Fall through to direct client insert below.
+    }
+
     const { data: inserted, error } = await supabase
       .from('shop_applications')
       .insert([application])
