@@ -95,7 +95,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ session, navigat
       app.id,
       'approved',
       undefined,
-      session.user.id
+      undefined
     );
 
     if (result.success) {
@@ -108,6 +108,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ session, navigat
       });
       setSelectedApp(null);
       loadAdminData();
+    } else {
+      alert(result.error || 'Approval failed. Please check the server logs.');
     }
     setProcessingApp(false);
   };
@@ -119,7 +121,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ session, navigat
       app.id,
       'rejected',
       rejectionReason.trim() || undefined,
-      session.user.id
+      undefined
     );
 
     if (result.success) {
@@ -131,6 +133,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ session, navigat
       setSelectedApp(null);
       setRejectionReason('');
       loadAdminData();
+    } else {
+      alert(result.error || 'Rejection failed. Please check the server logs.');
     }
     setProcessingApp(false);
   };
