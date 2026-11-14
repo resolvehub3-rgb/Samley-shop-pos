@@ -324,6 +324,10 @@ app.post('/api/sms/send-otp', async (req, res) => {
     }
   }
 
+  res.setHeader(
+    'Set-Cookie',
+    `otp_token=${otpToken}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=600`
+  );
   return res.json({
     success: true,
     status: providerStatus,
@@ -332,20 +336,28 @@ app.post('/api/sms/send-otp', async (req, res) => {
 });
 
 // Verify OTP (server-side)
+function readCookie(req: express.Request, name: string): string | undefined {
+  const header = req.headers.cookie || '';
+  const match = header.match(new RegExp(`(?:^|; )${name}=([^;]*)`));
+  return match ? decodeURIComponent(match[1]) : undefined;
+}
+
 app.post('/api/sms/verify-otp', (req, res) => {
   const { phoneNumber, otp, token } = req.body || {};
+  const resolvedToken = (typeof token === 'string' && token) || readCookie(req, 'otp_token');
   if (!phoneNumber || !otp) {
     return res.status(400).json({ success: false, error: 'Phone number and OTP are required.' });
   }
 
-  if (!token || typeof token !== 'string') {
+  if (!resolvedToken) {
     return res.status(400).json({ success: false, error: 'No verification code was requested for this number.' });
   }
 
-  if (!verifyOtpToken(token, String(phoneNumber).trim(), String(otp).trim())) {
+  if (!verifyOtpToken(resolvedToken, String(phoneNumber).trim(), String(otp).trim())) {
     return res.status(400).json({ success: false, error: 'Incorrect or expired verification code.' });
   }
 
+  res.setHeader('Set-Cookie', 'otp_token=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0');
   return res.json({ success: true });
 });
 
